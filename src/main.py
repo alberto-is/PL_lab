@@ -1,4 +1,5 @@
 import os
+import time
 from maze import *
 
 
@@ -8,7 +9,7 @@ def update_display(maze):
     """
     global TURNS_TO_ESCAPE
     # Clear the console
-    #os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
     # Print the maze
     maze.print()
     print(f"Total turns: {TURNS_TO_ESCAPE}")
@@ -45,28 +46,30 @@ def update_arrows(maze, maze_entities):
             elif entity.direction == "right":
                 dx = 1
                 dy = 0
-                
-            # Move the arrow
-            if not maze.move_entity(entity, dx, dy):  # A collision has been detected
-                target_cell_x = entity.cell.x + dx
-                target_cell_y = entity.cell.y + dy
-                # Ensure the target cell is within the bounds
-                if 0 <= target_cell_x < maze.width and 0 <= target_cell_y < maze.height:
-                    target_cell = maze.matrix[target_cell_y][target_cell_x]
-                        
-                    # Check if we hit a movable entity (pushable object)
-                    if target_cell.entity is not None and target_cell.entity.pushable:
-                        # Move the entity (pushable)
-                        if maze.move_entity(target_cell.entity, dx, dy):
-                            print(f"Arrow pushed {target_cell.entity} to ({target_cell_x + dx}, {target_cell_y + dy})")
+            
+            # Check if the arrow is allowed to move (can_move = True)
+            if entity.can_move:
+                # Move the arrow
+                if not maze.move_entity(entity, dx, dy):  # A collision has been detected
+                    target_cell_x = entity.cell.x + dx
+                    target_cell_y = entity.cell.y + dy
+                    # Ensure the target cell is within the bounds
+                    if 0 <= target_cell_x < maze.width and 0 <= target_cell_y < maze.height:
+                        target_cell = maze.matrix[target_cell_y][target_cell_x]
+                            
+                        # Check if we hit a movable entity (pushable object)
+                        if target_cell.entity is not None and target_cell.entity.pushable:
+                            # Move the entity (pushable)
+                            if maze.move_entity(target_cell.entity, dx, dy):
+                                print(f"Arrow pushed {target_cell.entity} to ({target_cell_x + dx}, {target_cell_y + dy})")
+                            else:
+                                print(f"Arrow hit a pushable object, but couldn't move it.")
                         else:
-                            print(f"Arrow hit a pushable object, but couldn't move it.")
-                    else:
-                        # Arrow hit a wall or non-pushable object
-                        print(f"Arrow hit a wall or non-pushable object at ({target_cell_x}, {target_cell_y})")
-                    
-                # Remove the arrow from the maze regardless of what it hit
-                entity.cell.entity = None
+                            # Arrow hit a wall or non-pushable object
+                            print(f"Arrow hit a wall or non-pushable object at ({target_cell_x}, {target_cell_y})")
+                        
+                    # Remove the arrow from the maze regardless of what it hit
+                    entity.cell.entity = None
     update_display(maze)
 
 
@@ -110,6 +113,7 @@ def move_player(maze, maze_entities):
                 TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
                 target_cell.entity = None  # Remove the exit from the maze
                 maze.move_entity(player, dx, dy)  # Redo the move
+                moved = True
                 update_display(maze)
                 win = True
                 break
@@ -121,6 +125,7 @@ def move_player(maze, maze_entities):
                 TURNS_TO_ESCAPE -= 3  # Reduce turn count by 3 (value of coin)
                 target_cell.entity = None  # Remove the coin from the maze
                 maze.move_entity(player, dx, dy) # Redo the move
+                moved = True
                 update_display(maze)
 
             # Check if it failed due to hitting a key
@@ -129,6 +134,7 @@ def move_player(maze, maze_entities):
                 player.keys += 1  # Give the player a key
                 target_cell.entity = None  # Remove the key from the maze
                 maze.move_entity(player, dx, dy) # Redo the move
+                moved = True
                 update_display(maze)
 
             # Check if it failed due to hitting a door
@@ -139,6 +145,7 @@ def move_player(maze, maze_entities):
                     TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
                     target_cell.entity = None  # Remove the door from the maze
                     maze.move_entity(player, dx, dy) # Redo the move
+                    moved = True
                     update_display(maze)
                 else:
                     print("Player hit a door without a key")
@@ -149,6 +156,7 @@ def move_player(maze, maze_entities):
                 if maze.teleport_entity(player, target_cell.entity.target_x, target_cell.entity.target_y):
                     print("Player hit a trap and teleported")
                     TURNS_TO_ESCAPE += 1  # Increment the turn count because move is valid
+                    moved = True
                     update_display(maze)
                 else:  # Target is blocked
                     print("Player hit a trap but couldn't teleport. Exit blocked by something")
@@ -159,8 +167,8 @@ def move_player(maze, maze_entities):
                 print("Warrior collision")
                 target_cell.entity = None  # Kill enemy
                 TURNS_TO_ESCAPE += 2  # 2 turns, one for the move, one because it was a warrior
-                maze.move_entity(player, dx, dy)  # Redo the move
                 print("Player hit a warrior and killed it")
+                moved = True
                 update_display(maze)
 
             # Check if it failed due to hitting an archer or mage
@@ -169,6 +177,7 @@ def move_player(maze, maze_entities):
                 target_cell.entity = None  # Kill enemy
                 TURNS_TO_ESCAPE += 1
                 maze.move_entity(player, dx, dy)  # Redo the move
+                moved = True
                 update_display(maze)
 
 
@@ -176,6 +185,7 @@ def move_player(maze, maze_entities):
             if target_cell.entity is not None and isinstance(target_cell.entity, Arrow):
                 target_cell.entity = None  # Tank the arrow but don't move, wasting a turn
                 TURNS_TO_ESCAPE += 1
+                moved = True
                 print("Player hit an arrow and tanked it")
                 update_display(maze)
 
@@ -183,7 +193,12 @@ def move_player(maze, maze_entities):
             if target_cell.entity is not None and isinstance(target_cell.entity, Bomb):
                 update_bombs(maze, maze_entities)
                 update_display(maze)
+                moved = True
 
+    # Update arrows to allow movement
+    for entity in maze_entities:
+        if isinstance(entity, Arrow):
+            entity.can_move = True
     update_display(maze)
     return win
 
@@ -215,13 +230,24 @@ def move_enemies(maze, maze_entities):
     """
     for entity in maze_entities:  # Locate all enemies
         if isinstance(entity, Warrior) or isinstance(entity, Archer) or isinstance(entity, Mage):
-            for i in range(3):
-                dx = random.randint(-1, 1)
-                dy = random.randint(-1, 1)
-                if maze.move_entity(entity, dx, dy):
-                    break
-                else:
-                    print(f"{entity} failed to move to {dx}, {dy}")
+            direction = random.choice(["up", "down", "left", "right"])
+            if direction == "up":
+                dx = 0
+                dy = -1
+            elif direction == "down":
+                dx = 0
+                dy = 1
+            elif direction == "left":
+                dx = -1
+                dy = 0
+            elif direction == "right":
+                dx = 1
+                dy = 0
+
+            if maze.move_entity(entity, dx, dy):
+                break
+            else:
+                print(f"{entity} failed to move to {dx}, {dy}")
     update_display(maze)
 
 
@@ -231,8 +257,8 @@ def shoot_arrows(maze, maze_entities):
     """
     for entity in maze_entities:
         if isinstance(entity, Archer):
-            # Decide if the archer will shoot (1/3 chance)
-            if random.randint(1, 3) == 1:
+            # Decide if the archer will shoot (1/5 chance)
+            if random.randint(1, 5) == 1:
                 # Shoot an arrow
                 if not entity.shoot():
                     print("Failed to shoot arrow")
@@ -245,14 +271,15 @@ def summon_bombs(maze, maze_entities):
     """
     for entity in maze_entities:
         if isinstance(entity, Mage):
-            # Decide if the mage will spawn a bomb (1/3 chance)
-            if random.randint(1, 3) == 1:
+            # Decide if the mage will spawn a bomb (1/5 chance)
+            if random.randint(1, 5) == 1:
                 entity.spawn_bomb()
                 update_display(maze)
 
 
 TURNS_TO_ESCAPE = 0  # Number of turns used to escape the maze (global variable)
 def main():
+    SLEEP_TIME = 0.2  # Time to sleep between each turn
     # Create a test maze and print it
     maze = Maze(11, 11)
     
@@ -335,28 +362,34 @@ def main():
         # 1. ARROW MOVING LOGIC
         update_arrows(maze, maze_entities)  # Update arrows in the maze
         maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
+        time.sleep(SLEEP_TIME)  # Small delay
 
         # 2. PLAYER MOVEMENT LOGIC
         win = move_player(maze, maze_entities)
         maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
         if win:
             break
+        time.sleep(SLEEP_TIME)  # Small delay
 
         # 3. BOMB EXPLOSION LOGIC
         update_bombs(maze, maze_entities)
         maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
+        time.sleep(SLEEP_TIME)  # Small delay
 
         # 4. ENEMY MOVEMENT LOGIC
         move_enemies(maze, maze_entities)
         maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
+        time.sleep(SLEEP_TIME)  # Small delay
         
         # 5. ARCHER SHOOTING ARROWS LOGIC
         shoot_arrows(maze, maze_entities)
         maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
+        time.sleep(SLEEP_TIME)  # Small delay
         
         # 6. MAGE SPAWNING BOMBS LOGIC
         summon_bombs(maze, maze_entities)
         maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
+        time.sleep(SLEEP_TIME)  # Small delay
     print("Player escaped!")
     print(f"Total turns to escape: {TURNS_TO_ESCAPE}")
         

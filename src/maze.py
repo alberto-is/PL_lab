@@ -323,7 +323,9 @@ class Arrow(MazeObj):
     def __init__(self, maze, direction, archer):
         super().__init__(maze)
         self.direction = direction  # Direction as a string: "up", "down", "left", "right"
-        self.archer = archer        # Reference to the archer that shot it
+        self.archer = archer  # Reference to the archer that shot it
+        self.pushable = False
+        self.can_move = False  # Start unable to move until the player has had a turn
 
     def __str__(self):
         return {
