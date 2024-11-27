@@ -14,6 +14,18 @@ def update_display(maze):
     print(f"Total turns: {TURNS_TO_ESCAPE}")
 
 
+def update_entity_list(maze):
+    """
+    Update the list of entities in the maze
+    """
+    maze_entities = []
+    for x in range(maze.width):
+        for y in range(maze.height):
+            if maze.matrix[x][y].entity is not None:
+                maze_entities.append(maze.matrix[x][y].entity)
+    return maze_entities
+
+
 def update_arrows(maze, maze_entities):
     """
     Update the arrows in the maze, moving them and checking for collisions
@@ -98,7 +110,10 @@ def move_player(maze, maze_entities):
                 TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
                 target_cell.entity = None  # Remove the exit from the maze
                 maze.move_entity(player, dx, dy)  # Redo the move
+                update_display(maze)
                 win = True
+                break
+                
 
             # Check if it failed due to hitting a coin
             if target_cell.entity is not None and isinstance(target_cell.entity, Coin):
@@ -163,6 +178,12 @@ def move_player(maze, maze_entities):
                 TURNS_TO_ESCAPE += 1
                 print("Player hit an arrow and tanked it")
                 update_display(maze)
+
+            # Check if it failed due to hitting a bomb
+            if target_cell.entity is not None and isinstance(target_cell.entity, Bomb):
+                update_bombs(maze, maze_entities)
+                update_display(maze)
+
     update_display(maze)
     return win
 
@@ -278,12 +299,7 @@ def main():
     # ==== GAME LOOP ====
 
     # Find entities in maze by searching for them in the matrix
-    maze_entities = []
-    for x in range(maze.width):
-        for y in range(maze.height):
-            if maze.matrix[x][y].entity is not None:
-                maze_entities.append(maze.matrix[x][y].entity)
-    print(f"Entities remaining in maze: {maze_entities}")
+    maze_entities = update_entity_list(maze)
 
     # Locate exit
     exit_cell = None
@@ -318,23 +334,29 @@ def main():
 
         # 1. ARROW MOVING LOGIC
         update_arrows(maze, maze_entities)  # Update arrows in the maze
+        maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
 
         # 2. PLAYER MOVEMENT LOGIC
         win = move_player(maze, maze_entities)
+        maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
         if win:
             break
 
         # 3. BOMB EXPLOSION LOGIC
         update_bombs(maze, maze_entities)
+        maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
 
         # 4. ENEMY MOVEMENT LOGIC
         move_enemies(maze, maze_entities)
+        maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
         
         # 5. ARCHER SHOOTING ARROWS LOGIC
         shoot_arrows(maze, maze_entities)
+        maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
         
         # 6. MAGE SPAWNING BOMBS LOGIC
         summon_bombs(maze, maze_entities)
+        maze_entities = update_entity_list(maze)  # Update the list of entities in the maze in case some were removed
     print("Player escaped!")
     print(f"Total turns to escape: {TURNS_TO_ESCAPE}")
         
