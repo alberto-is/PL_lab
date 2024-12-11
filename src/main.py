@@ -5,18 +5,6 @@ from maze import *
 from interface import *
 
 
-def update_display_legacy(maze):  # DEPRECIATED, Use update_display in interface.py
-    """
-    Update the display by clearing the console and printing the maze
-    """
-    global TURNS_TO_ESCAPE
-    # Clear the console
-    os.system('cls' if os.name == 'nt' else 'clear')
-    # Print the maze
-    maze.print()
-    print(f"Total turns: {TURNS_TO_ESCAPE}")
-
-
 def update_entity_list(maze):
     """
     Update the list of entities in the maze
@@ -36,18 +24,21 @@ def update_arrows(maze, maze_entities, screen):
     for entity in maze_entities:
         if isinstance(entity, Arrow):
             # Check direction (up, down, left, right)
-            if entity.direction == "up":
-                dx = 0
-                dy = -1
-            elif entity.direction == "down":
-                dx = 0
-                dy = 1
-            elif entity.direction == "left":
-                dx = -1
-                dy = 0
-            elif entity.direction == "right":
-                dx = 1
-                dy = 0
+            match entity.direction:
+                case "up":
+                    dx = 0
+                    dy = -1
+                case "down":
+                    dx = 0
+                    dy = 1
+                case "left":
+                    dx = -1
+                    dy = 0
+                case "right":
+                    dx = 1
+                    dy = 0
+                case _:
+                    print("Invalid arrow direction")  # Should never happen
             
             # Check if the arrow is allowed to move (can_move = True)
             if entity.can_move:
@@ -95,14 +86,17 @@ def move_player(maze, maze_entities, screen):
 
             if event.type == pygame.KEYDOWN:
                 dx, dy = 0, 0
-                if event.key == pygame.K_w:  # Move up
-                    dy = -1
-                elif event.key == pygame.K_s:  # Move down
-                    dy = 1
-                elif event.key == pygame.K_a:  # Move left
-                    dx = -1
-                elif event.key == pygame.K_d:  # Move right
-                    dx = 1
+                match event.key:
+                    case pygame.K_w:  # Move up
+                        dy = -1
+                    case pygame.K_s:  # Move down
+                        dy = 1
+                    case pygame.K_a:  # Move left
+                        dx = -1
+                    case pygame.K_d:  # Move right
+                        dx = 1
+                    case _:
+                        print("Invalid key pressed")  # Should never happen
 
                 if dx != 0 or dy != 0:
                     if maze.move_entity(player, dx, dy):
@@ -201,136 +195,6 @@ def move_player(maze, maze_entities, screen):
                             moved = True
 
     # Update arrows to allow movement after player completes turn
-    for entity in maze_entities:
-        if isinstance(entity, Arrow):
-            entity.can_move = True
-    update_display(maze, screen, TURNS_TO_ESCAPE)
-    return win
-
-
-def move_player_legacy(maze, maze_entities, screen):  # DEPRECIATED, Use move_player
-    """
-    Move the player in the maze and handle collisions with other entities
-    """
-    player = None
-    moved = False
-    win = False
-    global TURNS_TO_ESCAPE
-    for entity in maze_entities:
-        if isinstance(entity, Player):
-            player = entity
-            break
-
-    while not moved:  # Keep asking for input until the player moves
-        if player is not None:
-            direction = input("Enter direction (wasd): ")  #FIXME: TEMP MOVEMENT INPUT. IMPLEMENT ACTUAL KEYS INPUT
-        dx = 0
-        dy = 0
-        if direction == "w":
-            dy = -1
-        elif direction == "s":
-            dy = 1
-        elif direction == "a":
-            dx = -1
-        elif direction == "d":
-            dx = 1
-
-        if maze.move_entity(player, dx, dy):
-            moved = True
-            TURNS_TO_ESCAPE += 1   
-        else:  # Check what we hit
-            target_cell_x = player.cell.x + dx
-            target_cell_y = player.cell.y + dy
-            target_cell = maze.matrix[target_cell_y][target_cell_x]
-
-            # Check if it failed due to hitting the exit
-            if target_cell.entity is not None and isinstance(target_cell.entity, Exit):
-                TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
-                target_cell.entity = None  # Remove the exit from the maze
-                maze.move_entity(player, dx, dy)  # Redo the move
-                moved = True
-                update_display(maze, screen, TURNS_TO_ESCAPE)
-                win = True
-                break
-                
-
-            # Check if it failed due to hitting a coin
-            if target_cell.entity is not None and isinstance(target_cell.entity, Coin):
-                TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
-                TURNS_TO_ESCAPE -= 3  # Reduce turn count by 3 (value of coin)
-                target_cell.entity = None  # Remove the coin from the maze
-                maze.move_entity(player, dx, dy) # Redo the move
-                moved = True
-                update_display(maze, screen, TURNS_TO_ESCAPE)
-
-            # Check if it failed due to hitting a key
-            if target_cell.entity is not None and isinstance(target_cell.entity, Key):
-                TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
-                player.keys += 1  # Give the player a key
-                target_cell.entity = None  # Remove the key from the maze
-                maze.move_entity(player, dx, dy) # Redo the move
-                moved = True
-                update_display(maze, screen, TURNS_TO_ESCAPE)
-
-            # Check if it failed due to hitting a door
-            if target_cell.entity is not None and isinstance(target_cell.entity, Door):
-                # Check if we have a key
-                if player.keys > 0:
-                    player.keys -= 1  # Use a key
-                    TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
-                    target_cell.entity = None  # Remove the door from the maze
-                    maze.move_entity(player, dx, dy) # Redo the move
-                    moved = True
-                    update_display(maze, screen, TURNS_TO_ESCAPE)
-                else:
-                    print("Player hit a door without a key")
-                    update_display(maze, screen, TURNS_TO_ESCAPE)
-
-            # Check if it failed due to hitting a trap
-            if target_cell.entity is not None and isinstance(target_cell.entity, Trap):
-                if maze.teleport_entity(player, target_cell.entity.target_x, target_cell.entity.target_y):
-                    print("Player hit a trap and teleported")
-                    TURNS_TO_ESCAPE += 1  # Increment the turn count because move is valid
-                    moved = True
-                    update_display(maze, screen, TURNS_TO_ESCAPE)
-                else:  # Target is blocked
-                    print("Player hit a trap but couldn't teleport. Exit blocked by something")
-                    update_display(maze, screen, TURNS_TO_ESCAPE)
-
-            # Check if it failed due to hitting a warrior
-            if target_cell.entity is not None and isinstance(target_cell.entity, Warrior):
-                print("Warrior collision")
-                target_cell.entity = None  # Kill enemy
-                TURNS_TO_ESCAPE += 2  # 2 turns, one for the move, one because it was a warrior
-                print("Player hit a warrior and killed it")
-                moved = True
-                update_display(maze, screen, TURNS_TO_ESCAPE)
-
-            # Check if it failed due to hitting an archer or mage
-            if target_cell.entity is not None and (isinstance(target_cell.entity, Archer) or isinstance(target_cell.entity, Mage)):
-                print("Player hit an archer or mage")
-                target_cell.entity = None  # Kill enemy
-                TURNS_TO_ESCAPE += 1
-                maze.move_entity(player, dx, dy)  # Redo the move
-                moved = True
-                update_display(maze, screen, TURNS_TO_ESCAPE)
-
-
-            # Check if it failed due to hitting an arrow
-            if target_cell.entity is not None and isinstance(target_cell.entity, Arrow):
-                target_cell.entity = None  # Tank the arrow but don't move, wasting a turn
-                TURNS_TO_ESCAPE += 1
-                moved = True
-                print("Player hit an arrow and tanked it")
-                update_display(maze, screen, TURNS_TO_ESCAPE)
-
-            # Check if it failed due to hitting a bomb
-            if target_cell.entity is not None and isinstance(target_cell.entity, Bomb):
-                update_bombs(maze, maze_entities)
-                update_display(maze, screen, TURNS_TO_ESCAPE)
-                moved = True
-
-    # Update arrows to allow movement
     for entity in maze_entities:
         if isinstance(entity, Arrow):
             entity.can_move = True
