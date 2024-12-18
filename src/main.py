@@ -190,7 +190,7 @@ def move_player(maze, maze_entities, screen):
 
                         # Check if it failed due to hitting a bomb
                         if target_cell.entity is not None and isinstance(target_cell.entity, Bomb):
-                            update_bombs(maze, maze_entities)
+                            update_bombs(maze, maze_entities, screen)
                             update_display(maze, screen, TURNS_TO_ESCAPE)
                             moved = True
 
