@@ -106,7 +106,13 @@ def move_player(maze, maze_entities, screen):
                         # Collision and interaction logic
                         target_cell_x = player.cell.x + dx
                         target_cell_y = player.cell.y + dy
-                        target_cell = maze.matrix[target_cell_y][target_cell_x]
+
+                        if 0 <= target_cell_x < maze.width and 0 <= target_cell_y < maze.height:
+                            target_cell = maze.matrix[target_cell_y][target_cell_x]
+                        else:
+                            print("Error moving player: Out of bounds")
+                            update_display(maze, screen, TURNS_TO_ESCAPE)
+                            break
                         
                         # Check if it failed due to hitting the exit
                         if target_cell.entity is not None and isinstance(target_cell.entity, Exit):
