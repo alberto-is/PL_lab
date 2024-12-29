@@ -249,23 +249,25 @@ def move_enemies(maze, maze_entities, screen):
     for entity in maze_entities:  # Locate all enemies
         if isinstance(entity, Warrior) or isinstance(entity, Archer) or isinstance(entity, Mage):
             direction = random.choice(["up", "down", "left", "right"])
-            if direction == "up":
-                dx = 0
-                dy = -1
-            elif direction == "down":
-                dx = 0
-                dy = 1
-            elif direction == "left":
-                dx = -1
-                dy = 0
-            elif direction == "right":
-                dx = 1
-                dy = 0
-
-            if maze.move_entity(entity, dx, dy):
-                break
-            else:
-                print(f"{entity} failed to move to {dx}, {dy}")
+            move_chance = random.randint(1, 5)  # 1/5 chance to move
+            if move_chance == 1:
+                match direction:
+                    case "up":
+                        dx = 0
+                        dy = -1
+                    case "down":
+                        dx = 0
+                        dy = 1
+                    case "left":
+                        dx = -1
+                        dy = 0
+                    case "right":
+                        dx = 1
+                        dy = 0
+                    case _:
+                        print("Invalid direction")  # Should never happen
+                if not maze.move_entity(entity, dx, dy):
+                    print(f"{entity} failed to move to {dx}, {dy}")
     update_display(maze, screen, TURNS_TO_ESCAPE)
 
 
