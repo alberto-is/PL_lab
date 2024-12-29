@@ -7,27 +7,44 @@ import random
 from maze import *
 
 # Characters
-PLAYER_IMG = pygame.image.load("media/player.png")
-ARCHER_IMG = pygame.image.load("media/archer.png")
-WARRIOR_IMG = pygame.image.load("media/warrior.png")
-MAGE_IMG = pygame.image.load("media/mage.png")
+PLAYER_IMG = pygame.image.load("media/sprites/player.png")
+ARCHER_IMG = pygame.image.load("media/sprites/archer.png")
+WARRIOR_IMG = pygame.image.load("media/sprites/warrior.png")
+MAGE_IMG = pygame.image.load("media/sprites/mage.png")
 
 # Static objects
-COIN_IMG = pygame.image.load("media/coin.png")
-BOMB_IMG = pygame.image.load("media/bomb.png")
-EXIT_IMG = pygame.image.load("media/exit.png")
-KEY_IMG = pygame.image.load("media/key.png")
-DOOR_IMG = pygame.image.load("media/door.png")
-TRAP_IMG = pygame.image.load("media/trap.png")
+COIN_IMG = pygame.image.load("media/sprites/coin.png")
+BOMB_IMG = pygame.image.load("media/sprites/bomb.png")
+EXIT_IMG = pygame.image.load("media/sprites/exit.png")
+KEY_IMG = pygame.image.load("media/sprites/key.png")
+DOOR_IMG = pygame.image.load("media/sprites/door.png")
+TRAP_IMG = pygame.image.load("media/sprites/trap.png")
 
 # Tiles
-FLOOR_IMG = pygame.image.load("media/floor.png")
-WALL_IMG = pygame.image.load("media/wall.png")
-VOID_IMG = pygame.image.load("media/void.png")
+FLOOR_IMG = pygame.image.load("media/sprites/floor.png")
+WALL_IMG = pygame.image.load("media/sprites/wall.png")
+VOID_IMG = pygame.image.load("media/sprites/void.png")
 
 # Other items
-ARROW_IMG = pygame.image.load("media/arrow.png")
-TURNS_IMG = pygame.image.load("media/turns.png")
+ARROW_IMG = pygame.image.load("media/sprites/arrow.png")
+TURNS_IMG = pygame.image.load("media/sprites/turns.png")
+
+# Sfx
+pygame.mixer.init()
+BOMB_EXPLOSION = pygame.mixer.Sound("media/sfx/explosion.wav")
+COIN_PICKUP = pygame.mixer.Sound("media/sfx/coin.wav")
+KEY_PICKUP = pygame.mixer.Sound("media/sfx/key.wav")
+DOOR_OPEN = pygame.mixer.Sound("media/sfx/door.wav")
+TRAP_TRIGGER = pygame.mixer.Sound("media/sfx/teleport.wav")
+ARROW_SHOT = pygame.mixer.Sound("media/sfx/shoot.wav")
+BOMB_SPAWN = pygame.mixer.Sound("media/sfx/spawn.wav")
+PLAYER_MOVE = pygame.mixer.Sound("media/sfx/move.wav")
+EXIT_TOUCH = pygame.mixer.Sound("media/sfx/exit.wav")
+ARROW_HIT = pygame.mixer.Sound("media/sfx/hit.wav")
+ENEMY_KILL = pygame.mixer.Sound("media/sfx/kill.wav")
+
+# Music
+GAME_MUSIC = "media/sfx/loop.wav"
 
 # Other constants
 VIEW_RANGE = 10  # How many tiles arround the player can be sees (ONLY RENDER THIS VISION SQUARE, FILL REST WITH VOID)
@@ -37,6 +54,7 @@ FONT_FAMILY = "Consolas"  # Font for the text
 FONT_SIZE = 24  # Size of the text
 FONT_COLOR = (255, 255, 255)  # Color of the text
 MINI_SPRITE_SIZE = 64  # Size of the mini sprites in the inventory
+INTRO_FINISHED = False  # Flag to check if the intro music has finished playing
 
 
 def update_display(maze, screen, turns):
@@ -44,6 +62,11 @@ def update_display(maze, screen, turns):
     Update the screen with the maze's current state.
     Draw the floor, walls, voids, and objects in two sweeps.
     The player is centered on the screen.
+    
+    Atributes:
+    - maze: Maze object
+    - screen: Pygame screen object
+    - turns: Number of turns the player has taken
     """
 
     # Clear the screen
@@ -181,3 +204,52 @@ def update_display(maze, screen, turns):
 
     # Update the display
     pygame.display.flip()
+
+
+def play_sound(sound):
+    """
+    Play a sound effect.
+
+    Atributes:
+    - sound: Name of said sound
+
+    List of available sounds:
+    - bomb_explode
+    - coin_pickup
+    - key_pickup
+    - door_open
+    - trap_trigger
+    - arrow_shot
+    - bomb_spawn
+    - player_move
+    - exit_touch
+    - enemy_kill
+    - arrow_hit
+    """
+    sound_library = {   # Dictionary with the sounds and name
+        "bomb_explode": BOMB_EXPLOSION,
+        "coin_pickup": COIN_PICKUP,
+        "key_pickup": KEY_PICKUP,
+        "door_open": DOOR_OPEN,
+        "trap_trigger": TRAP_TRIGGER,
+        "arrow_shot": ARROW_SHOT,
+        "bomb_spawn": BOMB_SPAWN,
+        "player_move": PLAYER_MOVE,
+        "exit_touch": EXIT_TOUCH,
+        "enemy_kill": ENEMY_KILL,
+        "arrow_hit": ARROW_HIT
+    }
+
+    sound_library[sound].play()
+
+
+def play_music():
+    """
+    Play the game's music.
+    """
+    print("Music provided courtesy of Abundant Music (https://pernyblom.github.io/abundant-music/index.html)")
+    pygame.mixer.music.load(GAME_MUSIC)
+    pygame.mixer.music.play(-1)
+    
+    
+

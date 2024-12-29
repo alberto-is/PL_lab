@@ -63,6 +63,7 @@ def update_arrows(maze, maze_entities, screen):
                         
                     # Remove the arrow from the maze regardless of what it hit
                     entity.cell.entity = None
+                    play_sound("arrow_hit")
     update_display(maze, screen, TURNS_TO_ESCAPE)
 
 def move_player(maze, maze_entities, screen):
@@ -102,6 +103,7 @@ def move_player(maze, maze_entities, screen):
                     if maze.move_entity(player, dx, dy):
                         moved = True
                         TURNS_TO_ESCAPE += 1
+                        play_sound("player_move")
                     else:
                         # Collision and interaction logic
                         target_cell_x = player.cell.x + dx
@@ -119,6 +121,7 @@ def move_player(maze, maze_entities, screen):
                             TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
                             target_cell.entity = None  # Remove the exit from the maze
                             maze.move_entity(player, dx, dy)  # Redo the move
+                            play_sound("exit_touch")
                             moved = True
                             update_display(maze, screen, TURNS_TO_ESCAPE)
                             win = True
@@ -128,8 +131,11 @@ def move_player(maze, maze_entities, screen):
                         if target_cell.entity is not None and isinstance(target_cell.entity, Coin):
                             TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
                             TURNS_TO_ESCAPE -= 3  # Reduce turn count by 3 (value of coin)
+                            if TURNS_TO_ESCAPE < 0:
+                                TURNS_TO_ESCAPE = 0
                             target_cell.entity = None  # Remove the coin from the maze
                             maze.move_entity(player, dx, dy) # Redo the move
+                            play_sound("coin_pickup")
                             moved = True
                             update_display(maze, screen, TURNS_TO_ESCAPE)
 
@@ -139,6 +145,7 @@ def move_player(maze, maze_entities, screen):
                             player.keys += 1  # Give the player a key
                             target_cell.entity = None  # Remove the key from the maze
                             maze.move_entity(player, dx, dy) # Redo the move
+                            play_sound("key_pickup")
                             moved = True
                             update_display(maze, screen, TURNS_TO_ESCAPE)
 
@@ -150,6 +157,7 @@ def move_player(maze, maze_entities, screen):
                                 TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
                                 target_cell.entity = None  # Remove the door from the maze
                                 maze.move_entity(player, dx, dy) # Redo the move
+                                play_sound("door_open")
                                 moved = True
                                 update_display(maze, screen, TURNS_TO_ESCAPE)
                             else:
@@ -161,6 +169,7 @@ def move_player(maze, maze_entities, screen):
                             if maze.teleport_entity(player, target_cell.entity.target_x, target_cell.entity.target_y):
                                 print("Player hit a trap and teleported")
                                 TURNS_TO_ESCAPE += 1  # Increment the turn count because move is valid
+                                play_sound("trap_trigger")
                                 moved = True
                                 update_display(maze, screen, TURNS_TO_ESCAPE)
                             else:  # Target is blocked
@@ -173,6 +182,7 @@ def move_player(maze, maze_entities, screen):
                             target_cell.entity = None  # Kill enemy
                             TURNS_TO_ESCAPE += 2  # 2 turns, one for the move, one because it was a warrior
                             print("Player hit a warrior and killed it")
+                            play_sound("enemy_kill")
                             moved = True
                             update_display(maze, screen, TURNS_TO_ESCAPE)
 
@@ -182,6 +192,7 @@ def move_player(maze, maze_entities, screen):
                             target_cell.entity = None  # Kill enemy
                             TURNS_TO_ESCAPE += 1
                             maze.move_entity(player, dx, dy)  # Redo the move
+                            play_sound("enemy_kill")
                             moved = True
                             update_display(maze, screen, TURNS_TO_ESCAPE)
 
@@ -190,6 +201,7 @@ def move_player(maze, maze_entities, screen):
                         if target_cell.entity is not None and isinstance(target_cell.entity, Arrow):
                             target_cell.entity = None  # Tank the arrow but don't move, wasting a turn
                             TURNS_TO_ESCAPE += 1
+                            play_sound("arrow_hit")
                             moved = True
                             print("Player hit an arrow and tanked it")
                             update_display(maze, screen, TURNS_TO_ESCAPE)
@@ -225,6 +237,7 @@ def update_bombs(maze, maze_entities, screen):
                 if cell.entity is not None and isinstance(cell.entity, Player):
                     entity.cell.entity = None  # Remove the bomb
                     TURNS_TO_ESCAPE += 3  # 3 turns, one for the move, two because it was a bomb
+                    play_sound("bomb_explode")
                     print("Bomb hit player and exploded")
     update_display(maze, screen, TURNS_TO_ESCAPE)
 
@@ -267,6 +280,8 @@ def shoot_arrows(maze, maze_entities, screen):
                 # Shoot an arrow
                 if not entity.shoot():
                     print("Failed to shoot arrow")
+                else:
+                    play_sound("arrow_shot")
                 update_display(maze, screen, TURNS_TO_ESCAPE) 
 
 
@@ -276,9 +291,10 @@ def summon_bombs(maze, maze_entities, screen):
     """
     for entity in maze_entities:
         if isinstance(entity, Mage):
-            # Decide if the mage will spawn a bomb (1/5 chance)
-            if random.randint(1, 5) == 1:
-                entity.spawn_bomb()
+            # Decide if the mage will spawn a bomb (1/10 chance)
+            if random.randint(1, 10) == 1:
+                if entity.spawn_bomb():
+                    play_sound("bomb_spawn")
                 update_display(maze, screen, TURNS_TO_ESCAPE)
 
 
@@ -330,11 +346,12 @@ def main():
     # ==== GAME LOOP ====
     # Create pygame window (adjust to window size)
     pygame.init()
-    icon_img = pygame.image.load("media/icon.png")
+    icon_img = pygame.image.load("media/sprites/icon.png")
     pygame.display.set_icon(icon_img)  # Add this line
     screen = pygame.display.set_mode((1200, 700))
     pygame.display.set_caption("SQUID GAMES❗❗")
     clock = pygame.time.Clock()
+    play_music()
     
     # Find entities in maze by searching for them in the matrix
     maze_entities = update_entity_list(maze)
@@ -394,3 +411,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    time.sleep(1)

@@ -251,6 +251,7 @@ class Mage(MazeObj):
         """
         Spawn a bomb at the randomly chosen location.
         """
+        spawned = False  # Whether the bomb was successfully spawned
         if self.bombs_spawned < 5:
             # Find a random empty cell
             empty_cells = []
@@ -262,10 +263,12 @@ class Mage(MazeObj):
                 bomb_cell = random.choice(empty_cells)
                 self.maze.add_entity(Bomb(self.maze), bomb_cell.x, bomb_cell.y)
                 self.bombs_spawned += 1
+                spawned = True
             else:
                 print("Failed to spawn bomb: no empty cells left.")
         else:
             print("Failed to spawn bomb: maximum bombs spawned.")
+        return spawned
 
 
 class Archer(MazeObj):
