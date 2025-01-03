@@ -338,11 +338,15 @@ def main():
     # Add a key to the maze 
     maze.add_entity(Key(maze), 1, 6)  # K
 
-    # Add an exti to the maze
+    # Add an exit to the maze
     maze.add_entity(Exit(maze), 5, 0)  # E
 
     # Add a trap to the maze
-    maze.add_entity(Trap(maze, 5, 9), 5, 2)  # T
+    maze.add_entity(Trap(maze, 5, 9), 5, 2)  # T (target first, then location)
+
+    # Invalid placement of entities for testing (THESE SHOULD FAIL AND RETURN A FALSE VALUE)
+    maze.add_entity(Warrior(maze), 12, 3)  # W
+    maze.add_entity(Trap(maze, 5, 12), 5, 2)  # T
 
 
     # ==== GAME LOOP ====

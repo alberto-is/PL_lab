@@ -22,12 +22,34 @@ class Maze:
 
     def add_entity(self, entity: "MazeObj", x: int, y: int):
         """Add an entity to the cell at (x, y)."""
-        cell = self.matrix[y][x]
-        if cell.is_path and cell.entity is None:  # Ensure valid placement
-            cell.entity = entity
-            entity.cell = cell  # Reference to the cell itself
+        added = False  # Whether the entity was successfully added
+        if 0 <= x < self.width and 0 <= y < self.height:  # Check spawn cell bounds
+            cell = self.matrix[y][x]
+            if cell.is_path and cell.entity is None:  # Ensure spawn cell is valid
+                if isinstance(entity, Trap):  # Special handling for traps
+                    # Validate target coordinates for traps
+                    target_x, target_y = entity.target_x, entity.target_y
+                    if (
+                        0 <= target_x < self.width
+                        and 0 <= target_y < self.height  # Check target cell bounds
+                        and self.matrix[target_y][target_x].is_path
+                        and self.matrix[target_y][target_x].entity is None  # Ensure target cell is valid
+                    ):
+                        cell.entity = entity
+                        entity.cell = cell
+                        added = True
+                    else:
+                        print(f"Failed to add Trap: target cell ({target_x}, {target_y}) is invalid.")
+                else:
+                    cell.entity = entity
+                    entity.cell = cell
+                    added = True
+            else:
+                print(f"Failed to add entity {entity} at ({x}, {y}): spawn cell is not path or occupied.")
         else:
-            print(f"Failed to add entity {entity} at ({x}, {y}): cell is invalid or occupied.")
+            print(f"Failed to add entity {entity} at ({x}, {y}): coordinates are out of bounds.")
+
+        return added
 
 
     def move_entity(self, entity: "MazeObj", dx: int, dy: int):
@@ -89,6 +111,15 @@ class Cell:
         self.y = y  # Store the cell's y-coordinate in the maze
         self.is_path = is_path
         self.entity = None  # Reference to the contained entity, if any
+
+
+    def set_path(self):
+        """Set the cell as path."""
+        set_as_path = False
+        if not self.is_path:
+            self.is_path = True
+            set_as_path = True
+        return set_as_path
 
 
 # ===== OBJECTS =====
