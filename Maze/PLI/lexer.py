@@ -1,7 +1,43 @@
-import ply.lex as lex
+from ply import lex
 
-# Define reserved words as in the Keywords class
-keywords = {
+# Lista de nombres de tokens - es importante que coincidan exactamente con los usados en el parser
+tokens = [
+    'NUMBER',
+    'ID',
+    'PAREN_IZQ',
+    'PAREN_DER',
+    'LLAVE_IZQ',
+    'LLAVE_DER',
+    'PUNTO_COMA',
+    'COMA',
+] + [
+    'MAZE',
+    'DIMENSIONS',
+    'ENTRY',
+    'EXIT',
+    'ROOMS',
+    'ROOM',
+    'FROM',
+    'TO',
+    'PATHS',
+    'PATH',
+    'POINT',
+    'OBSTACLES',
+    'BOMB',
+    'ENEMY',
+    'TYPE',
+    'DOOR',
+    'KEY',
+    'COIN',
+    'TRAP',
+    'ARCHER',
+    'WARRIOR',
+    'MAGE',
+    'X'
+]
+
+# Diccionario de palabras reservadas
+reserved = {
     'maze': 'MAZE',
     'dimensions': 'DIMENSIONS',
     'entry': 'ENTRY',
@@ -16,68 +52,58 @@ keywords = {
     'obstacles': 'OBSTACLES',
     'bomb': 'BOMB',
     'enemy': 'ENEMY',
+    'type': 'TYPE',
     'door': 'DOOR',
     'key': 'KEY',
     'coin': 'COIN',
     'trap': 'TRAP',
-    'type': 'TYPE',
     'archer': 'ARCHER',
     'warrior': 'WARRIOR',
     'mage': 'MAGE',
     'x': 'X'
 }
 
-# Tokens
-tokens = [
-    'NUMBER', 'ID',
-    'LLAVE_IZQ', 'LLAVE_DER', 'PAREN_IZQ', 'PAREN_DER', 
-    'PUNTO_COMA', 'COMA'
-] + list(keywords.values())
-
-# Regular expressions for the tokens
-t_LLAVE_IZQ = r'\{'
-t_LLAVE_DER = r'\}'
+# Reglas simples para tokens
 t_PAREN_IZQ = r'\('
 t_PAREN_DER = r'\)'
+t_LLAVE_IZQ = r'\{'
+t_LLAVE_DER = r'\}'
 t_PUNTO_COMA = r';'
 t_COMA = r','
 
-# Handle reserved words
+# Regla para ignorar espacios y tabulaciones
+t_ignore = ' \t\r'
+
+# Regla para nuevas líneas
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+
+# Regla para identificadores y palabras reservadas
 def t_ID(t):
-    r'[A-Za-z_][A-Za-z_0-9]*'
-    t.type = keywords.get(t.value, 'ID')  # Check if it's a keyword
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reserved.get(t.value.lower(), 'ID')
     return t
 
-# Number rule
+# Regla para números
 def t_NUMBER(t):
-    r'[0-9]+'
+    r'0|[1-9][0-9]*'
+    t.value = int(t.value)
     return t
 
-# Ignoring whitespace
-t_ignore = ' \t\r\n'
+# Reglas para comentarios
+def t_COMMENT_MULTI(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')
 
-# Comments (single-line and multi-line)
-def t_COMMENT(t):
+def t_COMMENT_SINGLE(t):
     r'//.*'
     pass
 
-def t_BLOCK_COMMENT(t):
-    r'/\*.*?\*/'
-    pass
-
-# Handle errors
+# Regla para errores
 def t_error(t):
-    print(f"Error léxico: carácter no válido '{t.value[0]}'")
+    print(f"Illegal character '{t.value[0]}' at line {t.lineno}")
     t.lexer.skip(1)
 
-# Create the lexer
+# Construir el lexer
 lexer = lex.lex()
-
-# Test the lexer
-def test_lexer(data):
-    lexer.input(data)
-    while True:
-        tok = lexer.token()
-        if not tok:
-            break
-        print(tok)
