@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 from lexer import lexer
 from lexer import tokens
+from maze import *
 
 # Precedence and associativity (if any) could be defined here
 # precedence = ()

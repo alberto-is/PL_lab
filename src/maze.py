@@ -88,7 +88,18 @@ class Maze:
         else:
             print("Failed to add path: start point is outside maze bounds.")
         return added
-            
+
+    
+    def add_point(self, x, y):
+        """Set a single cell as path."""
+        added = False
+        if 0 <= x < self.width and 0 <= y < self.height:
+            self.matrix[y][x].set_path()
+            added = True
+        else:
+            print("Failed to add point: coordinates are out of bounds.")
+        return added
+        
 
     def move_entity(self, entity: "MazeObj", dx: int, dy: int):
         """Move an entity by dx, dy."""

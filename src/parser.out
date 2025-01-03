@@ -39,7 +39,6 @@ Rule 33    pointList -> point pointList
 Rule 34    pointList -> <empty>
 Rule 35    point -> POINT PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
 Rule 36    obstacles -> OBSTACLES LLAVE_IZQ obstacleList LLAVE_DER
-Rule 37    number -> NUMBER
 
 Terminals, with rules where they appear
 
@@ -58,7 +57,7 @@ LLAVE_DER            : 3 7 10 28 32 36
 LLAVE_IZQ            : 3 7 10 28 32 36
 MAGE                 : 23
 MAZE                 : 3
-NUMBER               : 4 4 5 5 6 6 10 10 19 19 20 20 24 24 25 25 26 26 27 27 27 27 31 31 31 31 35 35 37
+NUMBER               : 4 4 5 5 6 6 10 10 19 19 20 20 24 24 25 25 26 26 27 27 27 27 31 31 31 31 35 35
 OBSTACLES            : 36
 PAREN_DER            : 5 6 10 19 20 24 25 26 27 27 31 31 35
 PAREN_IZQ            : 5 6 10 19 20 24 25 26 27 27 31 31 35
@@ -88,7 +87,6 @@ exit                 : 2
 key                  : 16
 level                : 1
 maze                 : 2
-number               : 
 obstacle             : 11
 obstacleList         : 10 11 36
 obstacles            : 2
