@@ -87,7 +87,8 @@ class Maze:
                 print("Failed to add path: end point is outside maze bounds.")
         else:
             print("Failed to add path: start point is outside maze bounds.")
-
+        return added
+            
 
     def move_entity(self, entity: "MazeObj", dx: int, dy: int):
         """Move an entity by dx, dy."""
