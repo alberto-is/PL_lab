@@ -40,7 +40,7 @@ def p_roomList(p):
     pass
 
 def p_room(p):
-    'room : ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER'
+    'room : ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER'
     pass
 
 def p_obstacleList(p):

@@ -12,7 +12,7 @@ Rule 6     exit -> EXIT PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
 Rule 7     rooms -> ROOMS LLAVE_IZQ roomList LLAVE_DER
 Rule 8     roomList -> room roomList
 Rule 9     roomList -> <empty>
-Rule 10    room -> ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
+Rule 10    room -> ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
 Rule 11    obstacleList -> obstacle obstacleList
 Rule 12    obstacleList -> <empty>
 Rule 13    obstacle -> bomb
@@ -53,7 +53,6 @@ ENEMY                : 20
 ENTRY                : 5
 EXIT                 : 6
 FROM                 : 10 31
-ID                   : 10
 KEY                  : 25
 LLAVE_DER            : 3 7 10 28 32 36
 LLAVE_IZQ            : 3 7 10 28 32 36
@@ -275,7 +274,7 @@ state 21
     (7) rooms -> ROOMS LLAVE_IZQ . roomList LLAVE_DER
     (8) roomList -> . room roomList
     (9) roomList -> .
-    (10) room -> . ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
+    (10) room -> . ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
 
     LLAVE_DER       reduce using rule 9 (roomList -> .)
     ROOM            shift and go to state 31
@@ -351,7 +350,7 @@ state 30
     (8) roomList -> room . roomList
     (8) roomList -> . room roomList
     (9) roomList -> .
-    (10) room -> . ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
+    (10) room -> . ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
 
     LLAVE_DER       reduce using rule 9 (roomList -> .)
     ROOM            shift and go to state 31
@@ -361,9 +360,9 @@ state 30
 
 state 31
 
-    (10) room -> ROOM . ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
+    (10) room -> ROOM . FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
 
-    ID              shift and go to state 41
+    FROM            shift and go to state 41
 
 
 state 32
@@ -469,9 +468,9 @@ state 40
 
 state 41
 
-    (10) room -> ROOM ID . FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
+    (10) room -> ROOM FROM . PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
 
-    FROM            shift and go to state 62
+    PAREN_IZQ       shift and go to state 62
 
 
 state 42
@@ -686,9 +685,9 @@ state 61
 
 state 62
 
-    (10) room -> ROOM ID FROM . PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
+    (10) room -> ROOM FROM PAREN_IZQ . NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
 
-    PAREN_IZQ       shift and go to state 77
+    NUMBER          shift and go to state 77
 
 
 state 63
@@ -797,9 +796,9 @@ state 76
 
 state 77
 
-    (10) room -> ROOM ID FROM PAREN_IZQ . NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
+    (10) room -> ROOM FROM PAREN_IZQ NUMBER . COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
 
-    NUMBER          shift and go to state 89
+    COMA            shift and go to state 89
 
 
 state 78
@@ -882,9 +881,9 @@ state 88
 
 state 89
 
-    (10) room -> ROOM ID FROM PAREN_IZQ NUMBER . COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
+    (10) room -> ROOM FROM PAREN_IZQ NUMBER COMA . NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
 
-    COMA            shift and go to state 98
+    NUMBER          shift and go to state 98
 
 
 state 90
@@ -945,9 +944,9 @@ state 97
 
 state 98
 
-    (10) room -> ROOM ID FROM PAREN_IZQ NUMBER COMA . NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
+    (10) room -> ROOM FROM PAREN_IZQ NUMBER COMA NUMBER . PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
 
-    NUMBER          shift and go to state 107
+    PAREN_DER       shift and go to state 107
 
 
 state 99
@@ -1008,10 +1007,12 @@ state 106
 
 state 107
 
-    (10) room -> ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER . PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER
+    (10) room -> ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER . dimensions LLAVE_IZQ obstacleList LLAVE_DER
+    (4) dimensions -> . DIMENSIONS NUMBER X NUMBER
 
-    PAREN_DER       shift and go to state 116
+    DIMENSIONS      shift and go to state 12
 
+    dimensions                     shift and go to state 116
 
 state 108
 
@@ -1071,12 +1072,10 @@ state 115
 
 state 116
 
-    (10) room -> ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER . dimensions LLAVE_IZQ obstacleList LLAVE_DER
-    (4) dimensions -> . DIMENSIONS NUMBER X NUMBER
+    (10) room -> ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions . LLAVE_IZQ obstacleList LLAVE_DER
 
-    DIMENSIONS      shift and go to state 12
+    LLAVE_IZQ       shift and go to state 125
 
-    dimensions                     shift and go to state 125
 
 state 117
 
@@ -1166,10 +1165,38 @@ state 124
 
 state 125
 
-    (10) room -> ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions . LLAVE_IZQ obstacleList LLAVE_DER
+    (10) room -> ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ . obstacleList LLAVE_DER
+    (11) obstacleList -> . obstacle obstacleList
+    (12) obstacleList -> .
+    (13) obstacle -> . bomb
+    (14) obstacle -> . enemy
+    (15) obstacle -> . door
+    (16) obstacle -> . key
+    (17) obstacle -> . coin
+    (18) obstacle -> . trap
+    (19) bomb -> . BOMB PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
+    (20) enemy -> . ENEMY PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TYPE enemy_type PUNTO_COMA
+    (24) door -> . DOOR PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
+    (25) key -> . KEY PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
+    (26) coin -> . COIN PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
+    (27) trap -> . TRAP PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
 
-    LLAVE_IZQ       shift and go to state 133
+    LLAVE_DER       reduce using rule 12 (obstacleList -> .)
+    BOMB            shift and go to state 52
+    ENEMY           shift and go to state 53
+    DOOR            shift and go to state 54
+    KEY             shift and go to state 55
+    COIN            shift and go to state 56
+    TRAP            shift and go to state 57
 
+    obstacleList                   shift and go to state 133
+    obstacle                       shift and go to state 45
+    bomb                           shift and go to state 46
+    enemy                          shift and go to state 47
+    door                           shift and go to state 48
+    key                            shift and go to state 49
+    coin                           shift and go to state 50
+    trap                           shift and go to state 51
 
 state 126
 
@@ -1223,38 +1250,10 @@ state 132
 
 state 133
 
-    (10) room -> ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ . obstacleList LLAVE_DER
-    (11) obstacleList -> . obstacle obstacleList
-    (12) obstacleList -> .
-    (13) obstacle -> . bomb
-    (14) obstacle -> . enemy
-    (15) obstacle -> . door
-    (16) obstacle -> . key
-    (17) obstacle -> . coin
-    (18) obstacle -> . trap
-    (19) bomb -> . BOMB PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
-    (20) enemy -> . ENEMY PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TYPE enemy_type PUNTO_COMA
-    (24) door -> . DOOR PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
-    (25) key -> . KEY PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
-    (26) coin -> . COIN PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
-    (27) trap -> . TRAP PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA
+    (10) room -> ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList . LLAVE_DER
 
-    LLAVE_DER       reduce using rule 12 (obstacleList -> .)
-    BOMB            shift and go to state 52
-    ENEMY           shift and go to state 53
-    DOOR            shift and go to state 54
-    KEY             shift and go to state 55
-    COIN            shift and go to state 56
-    TRAP            shift and go to state 57
+    LLAVE_DER       shift and go to state 137
 
-    obstacleList                   shift and go to state 137
-    obstacle                       shift and go to state 45
-    bomb                           shift and go to state 46
-    enemy                          shift and go to state 47
-    door                           shift and go to state 48
-    key                            shift and go to state 49
-    coin                           shift and go to state 50
-    trap                           shift and go to state 51
 
 state 134
 
@@ -1285,62 +1284,55 @@ state 136
 
 state 137
 
-    (10) room -> ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList . LLAVE_DER
+    (10) room -> ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER .
 
-    LLAVE_DER       shift and go to state 140
+    ROOM            reduce using rule 10 (room -> ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER .)
+    LLAVE_DER       reduce using rule 10 (room -> ROOM FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER .)
 
 
 state 138
 
     (27) trap -> TRAP PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA . NUMBER PAREN_DER PUNTO_COMA
 
-    NUMBER          shift and go to state 141
+    NUMBER          shift and go to state 140
 
 
 state 139
 
     (31) path -> PATH FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA . NUMBER PAREN_DER PUNTO_COMA
 
-    NUMBER          shift and go to state 142
+    NUMBER          shift and go to state 141
 
 
 state 140
 
-    (10) room -> ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER .
+    (27) trap -> TRAP PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER . PAREN_DER PUNTO_COMA
 
-    ROOM            reduce using rule 10 (room -> ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER .)
-    LLAVE_DER       reduce using rule 10 (room -> ROOM ID FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER .)
+    PAREN_DER       shift and go to state 142
 
 
 state 141
 
-    (27) trap -> TRAP PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER . PAREN_DER PUNTO_COMA
+    (31) path -> PATH FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER . PAREN_DER PUNTO_COMA
 
     PAREN_DER       shift and go to state 143
 
 
 state 142
 
-    (31) path -> PATH FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER . PAREN_DER PUNTO_COMA
+    (27) trap -> TRAP PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER PAREN_DER . PUNTO_COMA
 
-    PAREN_DER       shift and go to state 144
+    PUNTO_COMA      shift and go to state 144
 
 
 state 143
 
-    (27) trap -> TRAP PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER PAREN_DER . PUNTO_COMA
+    (31) path -> PATH FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER PAREN_DER . PUNTO_COMA
 
     PUNTO_COMA      shift and go to state 145
 
 
 state 144
-
-    (31) path -> PATH FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER PAREN_DER . PUNTO_COMA
-
-    PUNTO_COMA      shift and go to state 146
-
-
-state 145
 
     (27) trap -> TRAP PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA .
 
@@ -1353,7 +1345,7 @@ state 145
     LLAVE_DER       reduce using rule 27 (trap -> TRAP PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA .)
 
 
-state 146
+state 145
 
     (31) path -> PATH FROM PAREN_IZQ NUMBER COMA NUMBER PAREN_DER TO PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA .
 

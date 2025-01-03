@@ -3,7 +3,6 @@ from ply import lex
 # Lista de nombres de tokens - es importante que coincidan exactamente con los usados en el parser
 tokens = [
     'NUMBER',
-    'ID',
     'PAREN_IZQ',
     'PAREN_DER',
     'LLAVE_IZQ',
