@@ -1,33 +1,44 @@
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
-
 import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        // Verifica que se haya pasado un archivo como argumento
-        if (args.length < 1) {
-            System.err.println("Por favor, especifica el archivo de entrada.");
-            return;
-        }
-
-        // Leer el archivo de entrada
-        String fileName = args[0];
-        InputStream inputStream = new FileInputStream(fileName);
-
-        // Crear un objeto CharStream desde el archivo
-        CharStream input = CharStreams.fromStream(inputStream);
-
-        // Crear el lexer, parser y ejecutar el análisis
+        
+        /* Detección de la fuente de la entrada, desde teclado o fichero */
+        
+        String inputFile = null;
+        if ( args.length>0 ) inputFile = args[0];
+        InputStream is = System.in;
+        if ( inputFile!=null ) is = new FileInputStream(inputFile);
+        
+        /* Conecta ANTLR con la entrada */
+        
+        CharStream input = CharStreams.fromStream(is);
+        
+        /* Crea el analizador léxico */ 
+        
         mazeLexer lexer = new mazeLexer(input);
+        
+        /* Lanza el analizador léxico sobre la entrada y obtiene la secuencia de tokens */
+        
         CommonTokenStream tokens = new CommonTokenStream(lexer);
+        
+        /* Crea el analizador sintáctico */
+        
         mazeParser parser = new mazeParser(tokens);
-
-        // Inicia el análisis desde la regla más alta definida (e.g., 'program')
-        ParseTree tree = parser.program();
-
-        // Mostrar el árbol de análisis generado
-        System.out.println(tree.toStringTree(parser));
+        
+        /* Lanza el analizador sintáctico y obtiene el árbol de análisis */
+        
+        ParseTree tree = parser.level();
+        
+        /* System.out.println(tree.toStringTree(parser)); */
+        
+        /* Recorremos el árbol para darle significado */
+        
+        ParseTreeWalker walker= new ParseTreeWalker();
+        walker.walk(new Listener(), tree);
+        System.out.println();
     }
 }

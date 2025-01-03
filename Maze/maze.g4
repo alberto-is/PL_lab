@@ -9,18 +9,18 @@ level: maze entry exit rooms paths obstacles;
 
 maze: MAZE LLAVE_IZQ dimensions LLAVE_DER PUNTO_COMA;
 
-dimensions: DIMENSIONS number X number;
+dimensions: DIMENSIONS number X number # gobal_dim;
     
-entry: ENTRY PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA;
+entry: ENTRY PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA # cord_entry;
 
-exit: EXIT PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA;
+exit: EXIT PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA # cord_exit;
 
 rooms: ROOMS LLAVE_IZQ roomList LLAVE_DER;
 
 roomList: room roomList 
         | ;
 
-room: ROOM ID FROM PAREN_IZQ number COMA number PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER;
+room: ROOM FROM PAREN_IZQ number COMA number PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER # dim_room;
 
 obstacleList: obstacle obstacleList 
             | ;
@@ -32,17 +32,17 @@ obstacle: bomb
         | coin 
         | trap;
 
-bomb: BOMB PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA;
+bomb: BOMB PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA # cord_bomb;
 
-enemy: ENEMY PAREN_IZQ number COMA number PAREN_DER TYPE enemy_type PUNTO_COMA;
+enemy: ENEMY PAREN_IZQ number COMA number PAREN_DER TYPE enemy_type PUNTO_COMA # cord_enemy;
 
-door: DOOR PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA;
+door: DOOR PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA # cord_door;
 
-key: KEY PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA;
+key: KEY PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA # cord_key;
 
-coin: COIN PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA;
+coin: COIN PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA # cord_coin;
 
-trap: TRAP PAREN_IZQ number COMA number PAREN_DER TO PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA;
+trap: TRAP PAREN_IZQ number COMA number PAREN_DER TO PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA # cord_trap;
 
 enemy_type: ARCHER 
         | WARRIOR 
@@ -53,25 +53,17 @@ paths: PATHS LLAVE_IZQ pathList LLAVE_DER;
 pathList: path pathList 
         | ;
 
-path: PATH FROM PAREN_IZQ number COMA number PAREN_DER TO PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA
-    | PATH LLAVE_IZQ pointList LLAVE_DER;
+path: PATH FROM PAREN_IZQ number COMA number PAREN_DER TO PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA # cord_path
+    | PATH LLAVE_IZQ pointList LLAVE_DER # cord_point_list
+    ;
 
 pointList: point pointList | ;
 
-point: POINT PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA;
+point: POINT PAREN_IZQ number COMA number PAREN_DER PUNTO_COMA # cord_point;
 
 obstacles: OBSTACLES LLAVE_IZQ obstacleList LLAVE_DER;
 
-number: NUMBER;
+number: NUMBER # num;
 
-
-/*
-tipos de errores
-- numeros negativos
-- un numero no puede empezar por 0<numero>
-- caracter * no reconocido, ¿querias usar x?
-- linea de comentario no formado correctamente
-- caracter no valido
-*/
 
 

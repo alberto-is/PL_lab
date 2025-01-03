@@ -27,9 +27,6 @@ X: 'x';
 
 NUMBER: [0] | [1-9][0-9]*;
       
-
-ID: [A-Za-z_][A-Za-z_0-9]*;
-
 // Symbols
 PAREN_IZQ: '(';
 PAREN_DER: ')';
