@@ -21,16 +21,16 @@ class Point {
 }
 
 public class Listener extends mazeBaseListener {
-   // Atributos para almacenar la información del laberinto
-   private Point mazeDimensions;
-   private Point entry;
-   private Point exit;
+    // Atributos para almacenar la información del laberinto
+    private Point mazeDimensions;
+    private Point entry;
+    private Point exit;
 
-   
     private List<Room> rooms = new ArrayList<>();
     private List<Obstacle> obstacles = new ArrayList<>();
     private List<Path> paths = new ArrayList<>();
     private List<String> errors = new ArrayList<>();
+    private List<Point> list_obstacles_points = new ArrayList<>();
 
     
 
@@ -50,7 +50,25 @@ public class Listener extends mazeBaseListener {
                 "Error: Coordenadas (%d,%d) fuera de los limites del laberinto [0,%d]x[0,%d] para %s",
                 x, y, mazeDimensions.getX() - 1, mazeDimensions.getY() - 1, elementType
             ));
+            return;
         }
+
+        // Comprobar si la coordenada ya ha sido utilizada por otro elemento
+        Point p = new Point(x, y);
+        boolean isRepeated = false;
+        for (Point point : list_obstacles_points) {
+            if (point.getX() == x && point.getY() == y && !elementType.equals("habitación")) {
+                isRepeated = true;
+                errors.add(String.format("Error: Coordenadas (%d,%d) ya han sido utilizadas por otro elemento", x, y));
+                break;
+            }
+        }
+
+        // Añadir la coordenada a la lista de puntos de obstáculos si no esta repetida
+        if (!isRepeated) {
+            list_obstacles_points.add(p); 
+        } 
+        
     }
 
     // Método para validar dimensiones de habitaciones
@@ -84,6 +102,23 @@ public class Listener extends mazeBaseListener {
        } else {
            System.out.println("Analisis completado sin errores.");
        }
+
+       //comprobar que todos los obstaculos esten dentro de algun camino disponible
+       // que comparta la misma coordenada con algun camino
+        for (Obstacle obs : obstacles) {
+            boolean isInsidePath = false;
+            for (Path path : paths) {
+            for (Point point : path.points) {
+                    if (point.getX() == obs.getPosition().getX() && point.getY() == obs.getPosition().getY()) {
+                        isInsidePath = true;
+                        break;
+                    }
+            }
+            }
+            if (!isInsidePath) {
+            System.err.println("Error: El obstaculo " + obs + " no esta dentro de ningun camino.");
+            }
+        }
    }
     
    // Métodos para procesar las dimensiones globales
@@ -108,9 +143,9 @@ public class Listener extends mazeBaseListener {
       int y = Integer.parseInt(ctx.number(1).getText());
       validateCoordinates(x, y, "punto de entrada");
 
-      if (!errors.isEmpty()) {
-        return; // Salir del método sin procesar el elemento si hay errores
-      }
+    //   if (!errors.isEmpty()) {
+    //     return; // Salir del método sin procesar el elemento si hay errores
+    //   }
 
       entry = new Point(x, y);
       System.out.println("Punto de entrada: " + entry);
@@ -123,9 +158,9 @@ public class Listener extends mazeBaseListener {
       int y = Integer.parseInt(ctx.number(1).getText());
       validateCoordinates(x, y, "punto de salida");
 
-      if (!errors.isEmpty()) {
-        return; // Salir del método sin procesar el elemento si hay errores
-      }
+    //   if (!errors.isEmpty()) {
+    //     return; // Salir del método sin procesar el elemento si hay errores
+    //   }
 
       exit = new Point(x, y);
       System.out.println("Punto de salida: " + exit);
@@ -166,15 +201,24 @@ public class Listener extends mazeBaseListener {
 
        validateRoomDimensions(startX, startY, tempDimensions.getX(), tempDimensions.getY(), "habitación");
 
-       if (!errors.isEmpty()) {
-        return; // Salir del método sin procesar el elemento si hay errores
-       }
+    //    if (!errors.isEmpty()) {
+    //     return; // Salir del método sin procesar el elemento si hay errores
+    //    }
        
        // Crear la nueva habitación con la posición y las dimensiones almacenadas
        currentRoom = new Room(position, tempDimensions);
 
        // Añadir la habitación creada a la lista global
        rooms.add(currentRoom);
+       // Añadir la extension de la habitacion como puntos y guardarlos en los caminos
+         for (int i = 0; i < tempDimensions.getX(); i++) {
+              for (int j = 0; j < tempDimensions.getY(); j++) {
+                paths.add(new Path());
+                Point p = new Point(startX + i, startY + j);
+                
+                paths.get(paths.size() - 1).addPoint(p);
+              }
+         }
        
        System.out.println("Habitación creada: " + currentRoom);
        
@@ -223,9 +267,9 @@ public class Listener extends mazeBaseListener {
 
         validateCoordinates(x, y, "bomba"); // Validar que las coordenadas están dentro del laberinto
 
-        if (!errors.isEmpty()) {
-            return; // Salir del método sin procesar el elemento si hay errores
-        }
+        // if (!errors.isEmpty()) {
+        //     return; // Salir del método sin procesar el elemento si hay errores
+        // }
 
         // Crear un nuevo obstáculo de tipo BOMB y agregarlo a la lista
         Obstacle bomb = new Obstacle("BOMB", new Point(x, y));
@@ -241,9 +285,9 @@ public class Listener extends mazeBaseListener {
 
         validateCoordinates(x, y, "enemigo"); // Validar que las coordenadas están dentro del laberinto
 
-        if (!errors.isEmpty()) {
-            return; // Salir del método sin procesar el elemento si hay errores
-        }
+        // if (!errors.isEmpty()) {
+        //     return; // Salir del método sin procesar el elemento si hay errores
+        // }
 
         // Crear un nuevo obstáculo de tipo ENEMY y agregarlo a la lista
         Obstacle enemy = new Obstacle("ENEMY_" + enemyType, new Point(x, y));
@@ -258,9 +302,9 @@ public class Listener extends mazeBaseListener {
 
       validateCoordinates(x, y, "puerta"); // Validar que las coordenadas están dentro del laberinto
 
-      if (!errors.isEmpty()) {
-        return; // Salir del método sin procesar el elemento si hay errores
-      }
+    //   if (!errors.isEmpty()) {
+    //     return; // Salir del método sin procesar el elemento si hay errores
+    //   }
 
       obstacles.add(new Obstacle("DOOR", new Point(x, y)));
       Obstacle door = new Obstacle("DOOR", new Point(x, y));
@@ -290,9 +334,9 @@ public class Listener extends mazeBaseListener {
 
       validateCoordinates(x, y, "moneda"); // Validar que las coordenadas están dentro del laberinto
 
-      if (!errors.isEmpty()) {
-        return; // Salir del método sin procesar el elemento si hay errores
-      }
+    //   if (!errors.isEmpty()) {
+    //     return; // Salir del método sin procesar el elemento si hay errores
+    //   }
 
       obstacles.add(new Obstacle("COIN", new Point(x, y)));
       Obstacle coin = new Obstacle("COIN", new Point(x, y));
