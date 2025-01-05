@@ -217,6 +217,7 @@ public class Listener extends mazeBaseListener {
    
    @Override
    public void exitLevel(mazeParser.LevelContext ctx) {
+       List<Obstacle> obstacles_witout_path = new ArrayList<>();
 
        buildGraph(); // Construir el grafo a partir de los caminos
 
@@ -234,8 +235,14 @@ public class Listener extends mazeBaseListener {
         }
 
         if (!isInsidePath) {
-            warnings.add("Advertencia: La bomba " + obs + " no está en ningún camino.");
+            obstacles_witout_path.add(obs); //Añadimos el obstaculo a la lista de obstaculos sin camino
+            warnings.add("Advertencia: El obstaculo " + obs + " no está en ningún camino.");
             }
+        }
+
+        // Eliminamos los obstaculos que no estan en ningun camino
+        for (Obstacle obs : obstacles_witout_path) {
+            obstacles.remove(obs);
         }
 
         // Verificar si existe un camino desde la entrada hasta la salida
