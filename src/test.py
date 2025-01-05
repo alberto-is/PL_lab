@@ -1,4 +1,3 @@
-from lexer import lexer
 from parser import parse
 
 # Function to read a file and return its contents
@@ -23,7 +22,7 @@ def test_file(file_path):
         print(f"Parsing failed: {e}")
     return maze
 
-correct_file = "./Maze/ej_maze_correcto.txt"
+correct_file = "./Maze/ej_maze_correcto_semantica.txt"
 incorrect_file = "./Maze/ej_maze_incorrecto.txt"
 
 
@@ -32,7 +31,7 @@ print("Correct file")
 maze = test_file(correct_file)
 if maze is not None:
     print("\nMaze:")
-    print(maze)
+    print(maze.print())
 else:
     print("\nMaze not created") 
 

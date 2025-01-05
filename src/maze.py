@@ -52,11 +52,11 @@ class Maze:
         return added
 
 
-    def add_room(x, y, room_width, room_height):
+    def add_room(self, x, y, room_width, room_height):
         """Set a rectangular section as path."""
         added = False
         if 0 <= x < self.width and 0 <= y < self.height:  # Check that the room starts within bounds
-            if 0 <= x + room_width < self.width and 0 <= y + room_height < self.height:  # Check that the room ends within bounds
+            if 0 <= x + room_width - 1 < self.width and 0 <= y + room_height - 1 < self.height:  # Check that the room ends within bounds
                 for i in range(x, x + room_width): # x y is the top left corner of the room
                     for j in range(y, y + room_height):
                         self.matrix[j][i].set_path()

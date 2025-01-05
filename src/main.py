@@ -3,6 +3,7 @@ import time
 import pygame
 from maze import *
 from interface import *
+from parser import parse
 
 
 def update_entity_list(maze):
@@ -300,54 +301,79 @@ def summon_bombs(maze, maze_entities, screen):
                 update_display(maze, screen, TURNS_TO_ESCAPE)
 
 
+def build_maze(file_path):
+    """
+    Build a maze from a file
+    """
+    maze = None
+    with open(file_path, 'r') as file:  # Read the file content
+        input_string = file.read()
+    
+    print(f"Building maze from: {file_path}\n")
+
+    print("\nParser output:")
+    try:
+        maze = parse(input_string)  # Parse the input using the parser
+        print("Parsing successful!")
+    except Exception as e:
+        print(f"Parsing failed: {e}")
+    return maze
+
+
 TURNS_TO_ESCAPE = 0  # Number of turns used to escape the maze (global variable)
 def main():
-    # Create a test maze and print it
-    maze = Maze(11, 11)
-    
-    # Change cells to be all path except for outer ring
-    for x in range(1, 10):
-        for y in range(1, 10):
-            maze.matrix[x][y].is_path = True
 
-    maze.matrix[0][5].is_path = True  # Top is a path too
-    maze.matrix[10][5].is_path = True  # Bottom is a path too
-    
-    # ADD OBJECTS TO A MAZE
-    # Add a player to the maze 
-    maze.add_entity(Player(maze), 5, 5)  # P
+    maze_file = "./Maze/ej_maze_correcto_semantica.txt"
+    if not os.path.exists(maze_file):
+        print(f"File not found: {maze_file}")
 
-    # Add a warrior to the maze
-    maze.add_entity(Warrior(maze), 3, 3)  # W
+    # Build the maze from the file
+    maze = build_maze(maze_file)
+    if maze is None:
+        print("Maze not created")
+        # Create alternate test maze
 
-    # Add a mage to the maze
-    maze.add_entity(Mage(maze), 7, 7)  # M
+        # Create a test maze and print it
+        maze = Maze(11, 11)
+        
+        # Change cells to be all path except for outer ring
+        for x in range(1, 10):
+            for y in range(1, 10):
+                maze.matrix[x][y].is_path = True
 
-    # Add an archer to the maze
-    maze.add_entity(Archer(maze), 3, 7)  # A
+        maze.matrix[0][5].is_path = True  # Top is a path too
+        maze.matrix[10][5].is_path = True  # Bottom is a path too
+        
+        # ADD OBJECTS TO A MAZE
+        # Add a player to the maze 
+        maze.add_entity(Player(maze), 5, 5)  # P
 
-    # Add a coin to the maze
-    maze.add_entity(Coin(maze), 5, 7)  # C
+        # Add a warrior to the maze
+        maze.add_entity(Warrior(maze), 3, 3)  # W
 
-    # Add a Bomb to the maze
-    maze.add_entity(Bomb(maze), 7, 3)  # B
+        # Add a mage to the maze
+        maze.add_entity(Mage(maze), 7, 7)  # M
 
-    # Add door at the bottom
-    maze.add_entity(Door(maze), 5, 10)  # D
+        # Add an archer to the maze
+        maze.add_entity(Archer(maze), 3, 7)  # A
 
-    # Add a key to the maze 
-    maze.add_entity(Key(maze), 1, 6)  # K
+        # Add a coin to the maze
+        maze.add_entity(Coin(maze), 5, 7)  # C
 
-    # Add an exit to the maze
-    maze.add_entity(Exit(maze), 5, 0)  # E
+        # Add a Bomb to the maze
+        maze.add_entity(Bomb(maze), 7, 3)  # B
 
-    # Add a trap to the maze
-    maze.add_entity(Trap(maze, 5, 9), 5, 2)  # T (target first, then location)
+        # Add door at the bottom
+        maze.add_entity(Door(maze), 5, 10)  # D
 
-    # Invalid placement of entities for testing (THESE SHOULD FAIL AND RETURN A FALSE VALUE)
-    maze.add_entity(Warrior(maze), 12, 3)  # W
-    maze.add_entity(Trap(maze, 5, 12), 5, 2)  # T
+        # Add a key to the maze 
+        maze.add_entity(Key(maze), 1, 6)  # K
 
+        # Add an exit to the maze
+        maze.add_entity(Exit(maze), 5, 0)  # E
+
+        # Add a trap to the maze
+        maze.add_entity(Trap(maze, 5, 9), 5, 2)  # T (target first, then location)
 
     # ==== GAME LOOP ====
     # Create pygame window (adjust to window size)
