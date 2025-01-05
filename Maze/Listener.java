@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 class Point {
@@ -84,7 +86,6 @@ public class Listener extends mazeBaseListener {
             );
         }
     }
-    
 
    @Override 
    public void enterLevel(mazeParser.LevelContext ctx){   
@@ -93,7 +94,27 @@ public class Listener extends mazeBaseListener {
    
    @Override
    public void exitLevel(mazeParser.LevelContext ctx) {
-       if (!errors.isEmpty()) {
+
+       //comprobar que todos los obstaculos esten dentro de algun camino disponible
+       // que comparta la misma coordenada con algun camino
+       for (Obstacle obs : obstacles) {
+        boolean isInsidePath = false;
+        for (Path path : paths) {
+        for (Point point : path.points) {
+                if (point.getX() == obs.getPosition().getX() && point.getY() == obs.getPosition().getY()) {
+                    isInsidePath = true;
+                    break;
+                }
+        }
+        }
+
+        if (!isInsidePath) {
+            errors.add("Advertencia: La bomba " + obs + " no está en ningún camino.");
+            }
+        }
+       
+       
+        if (!errors.isEmpty()) {
            System.err.println("\nError en la creacion del laberinto:");
            System.err.println("Errores encontrados durante el analisis:");
            for (String error : errors) {
@@ -103,22 +124,6 @@ public class Listener extends mazeBaseListener {
            System.out.println("Analisis completado sin errores.");
        }
 
-       //comprobar que todos los obstaculos esten dentro de algun camino disponible
-       // que comparta la misma coordenada con algun camino
-        for (Obstacle obs : obstacles) {
-            boolean isInsidePath = false;
-            for (Path path : paths) {
-            for (Point point : path.points) {
-                    if (point.getX() == obs.getPosition().getX() && point.getY() == obs.getPosition().getY()) {
-                        isInsidePath = true;
-                        break;
-                    }
-            }
-            }
-            if (!isInsidePath) {
-            System.err.println("Error: El obstaculo " + obs + " no esta dentro de ningun camino.");
-            }
-        }
    }
     
    // Métodos para procesar las dimensiones globales
