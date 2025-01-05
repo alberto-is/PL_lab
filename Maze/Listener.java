@@ -105,6 +105,17 @@ public class Listener extends mazeBaseListener {
         }
     }
 
+    // Metodo para comprobar si un punto ya se encuentra en la lista de puntos
+    private boolean isPointInPath(Point p, List<Path> list) {
+        for (Path path : list) {
+            for (Point point : path.points) {
+                if (point.getX() == p.getX() && point.getY() == p.getY()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     
     // Estructura Map que almacenara las conexiones entre los puntos
     private Map<Point, List<Point>> graph = new HashMap<>();
@@ -149,31 +160,31 @@ public class Listener extends mazeBaseListener {
 
     // Metodo para comprobar si el laberinto tiene un camino entre el punto de entrada y el de salida
     private boolean isPathAvailable(Point start, Point end) {
-    // Comprobamos que los puntos de entrada y salida estén
-    if (!graph.containsKey(start) || !graph.containsKey(end)) {
-        return false;
-    }
-
-    Set<Point> visited = new HashSet<>(); // Conjunto de nodos visitados
-    Queue<Point> queue = new LinkedList<>(); // Cola para el recorrido BFS
-    queue.add(start);
-
-    while (!queue.isEmpty()) {
-        Point current = queue.poll();
-        if (current.equals(end)) {
-            return true; // Se encontró un camino
+        // Comprobamos que los puntos de entrada y salida estén
+        if (!graph.containsKey(start) || !graph.containsKey(end)) {
+            return false;
         }
-        visited.add(current);
 
-        // Explorar vecinos
-        for (Point neighbor : graph.getOrDefault(current, new ArrayList<>())) {
-            if (!visited.contains(neighbor)) {
-                queue.add(neighbor);
+        Set<Point> visited = new HashSet<>(); // Conjunto de nodos visitados
+        Queue<Point> queue = new LinkedList<>(); // Cola para el recorrido BFS
+        queue.add(start);
+
+        while (!queue.isEmpty()) {
+            Point current = queue.poll();
+            if (current.equals(end)) {
+                return true; // Se encontró un camino
+            }
+            visited.add(current);
+
+            // Explorar vecinos
+            for (Point neighbor : graph.getOrDefault(current, new ArrayList<>())) {
+                if (!visited.contains(neighbor)) {
+                    queue.add(neighbor);
+                }
             }
         }
-    }
 
-    return false; // No se encontró un camino
+        return false; // No se encontró un camino
     }
 
 
@@ -224,6 +235,12 @@ public class Listener extends mazeBaseListener {
        } else {
            System.out.println("Analisis completado sin errores.");
        }
+
+       //Mostrar por pantalla todos los puntos de los caminos
+        System.out.println("----------Puntos de los caminos----------");
+        for (Path path : paths) {
+            System.out.println(path);
+        }
 
    }
     
@@ -319,10 +336,16 @@ public class Listener extends mazeBaseListener {
        // Añadir la extension de la habitacion como puntos y guardarlos en los caminos
          for (int i = 0; i < tempDimensions.getX(); i++) {
               for (int j = 0; j < tempDimensions.getY(); j++) {
-                paths.add(new Path());
                 Point p = new Point(startX + i, startY + j);
-                
-                paths.get(paths.size() - 1).addPoint(p);
+                //Comprobar si el punto ya está definido como camino 
+                if (!isPointInPath(p, paths)){
+                    paths.add(new Path());
+                    paths.get(paths.size() - 1).addPoint(p);
+                    System.out.println("ROOM: Añadido punto " + p + " al camino actual");
+                }else{
+                    errors.add("Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+                }
+
               }
          }
        
@@ -499,18 +522,34 @@ public class Listener extends mazeBaseListener {
 
           // Primero movemos en X
           while (currentX != endX) {
-              points.add(new Point(currentX, currentY));
-              currentX += (currentX < endX) ? 1 : -1;
-          }
+                Point p = new Point(currentX, currentY);
+                if (!isPointInPath(p, paths)){
+                    points.add(p);
+                }else{
+                    errors.add("- Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+                }
+                currentX += (currentX < endX) ? 1 : -1;
+            }
 
           // Luego movemos en Y
           while (currentY != endY) {
-              points.add(new Point(currentX, currentY));
-              currentY += (currentY < endY) ? 1 : -1;
+                Point p = new Point(currentX, currentY);
+                if (!isPointInPath(p, paths)){
+                    points.add(p);
+                }else{
+                    errors.add("- Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+                }
+                currentY += (currentY < endY) ? 1 : -1;
           }
 
           // Añadimos el punto final
-          points.add(new Point(endX, endY));
+        Point p = new Point(endX, endY);
+        if (!isPointInPath(p, paths)){
+            points.add(p);
+        }else{
+            errors.add("- Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+        }
+
       }
 
       public void addPoint(Point p) {
@@ -597,6 +636,11 @@ public class Listener extends mazeBaseListener {
           return; // Salir sin añadir el punto
       }
   
+      // Comprobamos que el punto no esté repetido
+        if (isPointInPath(point, paths)) {
+            errors.add("Advertencia: El punto " + point + " ya se ha definido anteriormente.");
+            return; // Salir sin añadir el punto
+        }
       // Añadir el punto al último camino
       paths.get(paths.size() - 1).addPoint(point);
       System.out.println("Añadido punto " + point + " al camino actual");

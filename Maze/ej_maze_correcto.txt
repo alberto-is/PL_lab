@@ -28,6 +28,7 @@ paths {
         point (2, 0);
         point (3, 3);
         point (4, 4);
+        point (9, 6);
     }
 }
 
