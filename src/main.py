@@ -381,14 +381,14 @@ def main():
     icon_img = pygame.image.load("media/sprites/icon.png")
     pygame.display.set_icon(icon_img)  # Add this line
     screen = pygame.display.set_mode((1200, 700))
-    pygame.display.set_caption("SQUID GAMES❗❗")
+    pygame.display.set_caption("Dungeon Escape")
     clock = pygame.time.Clock()
     play_music()
     
     # Find entities in maze by searching for them in the matrix
     maze_entities = update_entity_list(maze)
 
-    # Locate exit
+    # Locate exit (Should never happen as the parser ensures an exit is present)
     exit_cell = None
     for entity in maze_entities:
         if isinstance(entity, Exit):
