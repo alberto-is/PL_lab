@@ -50,9 +50,27 @@ public class Listener extends mazeBaseListener {
     private List<Obstacle> obstacles = new ArrayList<>();
     private List<Path> paths = new ArrayList<>();
     private List<String> errors = new ArrayList<>();
+    private List<String> warnings = new ArrayList<>();
     private List<Point> list_obstacles_points = new ArrayList<>();
 
     
+    // Métodos para obtener la información del laberinto
+    public Point getMazeDimensions() { return mazeDimensions; }
+    public Point getEntry() { return entry; }
+    public Point getExit() { return exit; }
+    public List<Room> getRooms() { return rooms; }
+    public List<Obstacle> getObstacles() { return obstacles; }
+    public List<Point> getAllPointGenerated() { 
+        // Devolveremos una lista con solo los puntos generados tanto manualmente como autogenerado
+        List<Point> pointsToReturn = new ArrayList<>();
+        for (Path path : paths) {
+           for (Point point : path.points) {
+               pointsToReturn.add(point);
+           }
+        }
+        return pointsToReturn;
+    }
+
 
     //--------------------------------------------------------------------------------------------------------------------------
     // Metodos de control de fallos
@@ -216,7 +234,7 @@ public class Listener extends mazeBaseListener {
         }
 
         if (!isInsidePath) {
-            errors.add("Advertencia: La bomba " + obs + " no está en ningún camino.");
+            warnings.add("Advertencia: La bomba " + obs + " no está en ningún camino.");
             }
         }
 
@@ -235,6 +253,14 @@ public class Listener extends mazeBaseListener {
        } else {
            System.out.println("Analisis completado sin errores.");
        }
+
+        // Mostrar advertencias
+        if (!warnings.isEmpty()) {
+            System.out.println("\nAdvertencias encontradas durante el analisis:");
+            for (String warning : warnings) {
+                System.out.println("- " + warning);
+            }
+        }
 
        //Mostrar por pantalla todos los puntos de los caminos
         System.out.println("----------Puntos de los caminos----------");
@@ -343,7 +369,7 @@ public class Listener extends mazeBaseListener {
                     paths.get(paths.size() - 1).addPoint(p);
                     System.out.println("ROOM: Añadido punto " + p + " al camino actual");
                 }else{
-                    errors.add("Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+                    warnings.add("Advertencia: El punto " + p + " ya se ha definido anteriormente.");
                 }
 
               }
@@ -526,7 +552,7 @@ public class Listener extends mazeBaseListener {
                 if (!isPointInPath(p, paths)){
                     points.add(p);
                 }else{
-                    errors.add("- Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+                    warnings.add("Advertencia: El punto " + p + " ya se ha definido anteriormente.");
                 }
                 currentX += (currentX < endX) ? 1 : -1;
             }
@@ -537,7 +563,7 @@ public class Listener extends mazeBaseListener {
                 if (!isPointInPath(p, paths)){
                     points.add(p);
                 }else{
-                    errors.add("- Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+                    warnings.add("Advertencia: El punto " + p + " ya se ha definido anteriormente.");
                 }
                 currentY += (currentY < endY) ? 1 : -1;
           }
@@ -547,7 +573,7 @@ public class Listener extends mazeBaseListener {
         if (!isPointInPath(p, paths)){
             points.add(p);
         }else{
-            errors.add("- Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+            warnings.add("Advertencia: El punto " + p + " ya se ha definido anteriormente.");
         }
 
       }
@@ -638,7 +664,7 @@ public class Listener extends mazeBaseListener {
   
       // Comprobamos que el punto no esté repetido
         if (isPointInPath(point, paths)) {
-            errors.add("Advertencia: El punto " + point + " ya se ha definido anteriormente.");
+            warnings.add("Advertencia: El punto " + point + " ya se ha definido anteriormente.");
             return; // Salir sin añadir el punto
         }
       // Añadir el punto al último camino

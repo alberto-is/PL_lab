@@ -2,6 +2,7 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -38,7 +39,19 @@ public class Main {
         /* Recorremos el árbol para darle significado */
         
         ParseTreeWalker walker= new ParseTreeWalker();
-        walker.walk(new Listener(), tree);
+        Listener listener = new Listener();
+        walker.walk(listener, tree);
         System.out.println();
+        System.out.println("-----Estos son las caracteristicas del laberinto-----");
+        System.out.println("Dimensiones: "+listener.getMazeDimensions());
+        System.out.println("Entrada: "+listener.getEntry());
+        System.out.println("Salida: "+listener.getExit());
+        List<Point> points = listener.getAllPointGenerated();
+        System.out.println("Puntos generados como caminos: ");
+        for(Point p: points){
+            System.out.println(p);
+        }
+        System.out.println("Obstaculos: "+listener.getObstacles());
+        
     }
 }
