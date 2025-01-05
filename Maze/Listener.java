@@ -1,7 +1,12 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Objects;
 
 
 class Point {
@@ -20,6 +25,19 @@ class Point {
    public String toString() {
        return "(" + x + "," + y + ")";
    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Point point = (Point) o;
+        return x == point.x && y == point.y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
 }
 
 public class Listener extends mazeBaseListener {
@@ -87,6 +105,82 @@ public class Listener extends mazeBaseListener {
         }
     }
 
+    
+    // Estructura Map que almacenara las conexiones entre los puntos
+    private Map<Point, List<Point>> graph = new HashMap<>();
+
+    // Método para construir el grafo a partir de los caminos definidos
+    private void buildGraph() {
+        for (Path path : paths) {
+            List<Point> points = path.points;
+            for (int i = 0; i < points.size() - 1; i++) {
+                Point current = points.get(i);
+                Point next = points.get(i + 1);
+
+                // Agregar conexiones bidireccionales
+                graph.computeIfAbsent(current, k -> new ArrayList<>()).add(next); // Añadir next a la lista de adyacencia de current
+                graph.computeIfAbsent(next, k -> new ArrayList<>()).add(current); // Añadir current a la lista de adyacencia de next
+            }
+        }
+
+            // Llamada para añadir las conexiones faltantes entre puntos adyacentes
+            addMissingConnections(graph);
+    }
+
+    // Método que añade las conexiones faltantes entre puntos adyacentes
+    public static void addMissingConnections(Map<Point, List<Point>> graph) {
+        for (Point p1 : graph.keySet()) {
+            for (Point p2 : graph.keySet()) {
+                // Si los puntos están adyacentes pero no están conectados
+                if (isAdjacent(p1, p2) && !graph.get(p1).contains(p2)) {
+                    graph.get(p1).add(p2);
+                    graph.get(p2).add(p1); // Conexión bidireccional añadida 
+                }
+            }
+        }
+    }
+
+    // Función que revisa si dos puntos son adyacentes
+    public static boolean isAdjacent(Point p1, Point p2) {
+        return (Math.abs(p1.getX() - p2.getX()) == 1 && p1.getY() == p2.getY()) || // Horizontal
+            (Math.abs(p1.getY() - p2.getY()) == 1 && p1.getX() == p2.getX());   // Vertical
+    }
+
+
+    // Metodo para comprobar si el laberinto tiene un camino entre el punto de entrada y el de salida
+    private boolean isPathAvailable(Point start, Point end) {
+    // Comprobamos que los puntos de entrada y salida estén
+    if (!graph.containsKey(start) || !graph.containsKey(end)) {
+        return false;
+    }
+
+    Set<Point> visited = new HashSet<>(); // Conjunto de nodos visitados
+    Queue<Point> queue = new LinkedList<>(); // Cola para el recorrido BFS
+    queue.add(start);
+
+    while (!queue.isEmpty()) {
+        Point current = queue.poll();
+        if (current.equals(end)) {
+            return true; // Se encontró un camino
+        }
+        visited.add(current);
+
+        // Explorar vecinos
+        for (Point neighbor : graph.getOrDefault(current, new ArrayList<>())) {
+            if (!visited.contains(neighbor)) {
+                queue.add(neighbor);
+            }
+        }
+    }
+
+    return false; // No se encontró un camino
+    }
+
+
+    //--------------------------------------------------------------------------------------------------------------------------
+    // Metodos Del programa
+    //--------------------------------------------------------------------------------------------------------------------------
+
    @Override 
    public void enterLevel(mazeParser.LevelContext ctx){   
       System.out.println("Llamada a Level");       
@@ -94,6 +188,8 @@ public class Listener extends mazeBaseListener {
    
    @Override
    public void exitLevel(mazeParser.LevelContext ctx) {
+
+       buildGraph(); // Construir el grafo a partir de los caminos
 
        //comprobar que todos los obstaculos esten dentro de algun camino disponible
        // que comparta la misma coordenada con algun camino
@@ -111,6 +207,11 @@ public class Listener extends mazeBaseListener {
         if (!isInsidePath) {
             errors.add("Advertencia: La bomba " + obs + " no está en ningún camino.");
             }
+        }
+
+        // Verificar si existe un camino desde la entrada hasta la salida
+        if (!isPathAvailable(entry, exit)) {
+            errors.add("Error: No existe un camino desde la entrada hasta la salida.");
         }
        
        
