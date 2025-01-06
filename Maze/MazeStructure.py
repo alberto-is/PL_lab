@@ -53,10 +53,12 @@ maze = MazeStructure(
 		(9, 8),
 		(9, 9),
 		(4, 4),
+		(3, 4),
+		(4, 5),
 	],
 	[
 		Obstacle('BOMB', (2, 1)),
-		Obstacle('ENEMY', 'archer', (3, 3)),
+		Obstacle('ENEMY', (3, 3),enemy_type='archer'),
 		Obstacle('DOOR', (1, 1)),
 		Obstacle('KEY', (6, 6)),
 		Obstacle('TRAP', (5, 5), (5, 6)),

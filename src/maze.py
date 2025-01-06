@@ -52,6 +52,44 @@ class Maze:
         return added
 
 
+    def add_room(self, x, y, room_width, room_height):
+        """Set a rectangular section as path."""
+        added = False
+        if 0 <= x < self.width and 0 <= y < self.height:  # Check that the room starts within bounds
+            if 0 <= x + room_width - 1 < self.width and 0 <= y + room_height - 1 < self.height:  # Check that the room ends within bounds
+                for i in range(x, x + room_width): # x y is the top left corner of the room
+                    for j in range(y, y + room_height):
+                        self.matrix[j][i].set_path()
+                added = True
+            else:
+                print("Failed to add room: room exceeds maze bounds.")
+        else:
+            print("Failed to add room: room starts outside maze bounds.")
+        return added
+
+
+    def add_path(self, x1, y1, x2, y2):
+        """Set a straight line of path between two points."""
+        added = False
+        if 0 <= x1 < self.width and 0 <= y1 < self.height:  # Check that the start point is within bounds
+            if 0 <= x2 < self.width and 0 <= y2 < self.height:  # Check that the end point is within bounds
+                if x1 == x2 or y1 == y2: # Check the path is straight
+                    if x1 == x2:  # Vertical path
+                        for y in range(min(y1, y2), max(y1, y2) + 1):
+                            self.matrix[y][x1].set_path()
+                    else:  # Horizontal path
+                        for x in range(min(x1, x2), max(x1, x2) + 1):
+                            self.matrix[y1][x].set_path()
+                    added = True
+                else:
+                    print("Failed to add path: path is not straight.")
+            else:
+                print("Failed to add path: end point is outside maze bounds.")
+        else:
+            print("Failed to add path: start point is outside maze bounds.")
+        return added
+            
+
     def move_entity(self, entity: "MazeObj", dx: int, dy: int):
         """Move an entity by dx, dy."""
         old_cell = entity.cell

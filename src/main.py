@@ -3,7 +3,13 @@ import time
 import pygame
 from maze import *
 from interface import *
+import sys
 
+print('MONDONGO SUPREMO')
+maze_path = os.path.join(r"../Maze")
+sys.path.append(maze_path)
+import MazeStructure
+print(MazeStructure.maze.dimensions)
 
 def update_entity_list(maze):
     """
@@ -303,46 +309,49 @@ def summon_bombs(maze, maze_entities, screen):
 TURNS_TO_ESCAPE = 0  # Number of turns used to escape the maze (global variable)
 def main():
     # Create a test maze and print it
-    maze = Maze(11, 11)
-    
-    # Change cells to be all path except for outer ring
-    for x in range(1, 10):
-        for y in range(1, 10):
-            maze.matrix[x][y].is_path = True
+    dimensions = MazeStructure.maze.dimensions
+    maze = Maze(dimensions[0],dimensions[1])
+    print(f'dimensions: {maze.width},{maze.height}')
 
-    maze.matrix[0][5].is_path = True  # Top is a path too
-    maze.matrix[10][5].is_path = True  # Bottom is a path too
+    # Determine cells that are paths
+    for point in MazeStructure.maze.list_points_path:
+        maze.matrix[point[0]][point[1]].is_path = True
     
     # ADD OBJECTS TO A MAZE
-    # Add a player to the maze 
-    maze.add_entity(Player(maze), 5, 5)  # P
+    # Add a player to the maze
+    entry = MazeStructure.maze.entry 
+    print('entry:', entry)
+    maze.add_entity(Player(maze), entry[0], entry[1])  # P
 
-    # Add a warrior to the maze
-    maze.add_entity(Warrior(maze), 3, 3)  # W
-
-    # Add a mage to the maze
-    maze.add_entity(Mage(maze), 7, 7)  # M
-
-    # Add an archer to the maze
-    maze.add_entity(Archer(maze), 3, 7)  # A
-
-    # Add a coin to the maze
-    maze.add_entity(Coin(maze), 5, 7)  # C
-
-    # Add a Bomb to the maze
-    maze.add_entity(Bomb(maze), 7, 3)  # B
-
-    # Add door at the bottom
-    maze.add_entity(Door(maze), 5, 10)  # D
-
-    # Add a key to the maze 
-    maze.add_entity(Key(maze), 1, 6)  # K
+    # Add obstacles to the maze
+    for obstacle in MazeStructure.maze.list_obstacles:
+        match obstacle.type:
+            case 'BOMB':
+                maze.add_entity(Bomb(maze), obstacle.position[0], obstacle.position[1])  # B
+            case 'ENEMY':
+                print('enemy_type:', obstacle.enemy_type)
+                match obstacle.enemy_type:
+                    case 'warrior':
+                        maze.add_entity(Warrior(maze), obstacle.position[0], obstacle.position[1])  # W
+                    case 'archer':
+                        print('archer:', obstacle.position[0], obstacle.position[1])
+                        maze.add_entity(Archer(maze), obstacle.position[0], obstacle.position[1])  # A
+                    case 'mage':
+                        maze.add_entity(Mage(maze), obstacle.position[0], obstacle.position[1])  # M
+            case 'DOOR':
+                maze.add_entity(Door(maze), obstacle.position[0], obstacle.position[1])  # D
+            case 'KEY':
+                maze.add_entity(Key(maze), obstacle.position[0], obstacle.position[1])  # K
+            case 'TRAP':
+                maze.add_entity(Trap(maze, obstacle.destination[0], obstacle.destination[1]), obstacle.position[0], obstacle.position[1])
+            case 'COIN':
+                maze.add_entity(Coin(maze), obstacle.position[0], obstacle.position[1])
+            case _:
+                print("Invalid obstacle type")  # Should never happen
 
     # Add an exit to the maze
-    maze.add_entity(Exit(maze), 5, 0)  # E
-
-    # Add a trap to the maze
-    maze.add_entity(Trap(maze, 5, 9), 5, 2)  # T (target first, then location)
+    exit = MazeStructure.maze.exit
+    maze.add_entity(Exit(maze), exit[0], exit[1])  # E
 
     # Invalid placement of entities for testing (THESE SHOULD FAIL AND RETURN A FALSE VALUE)
     maze.add_entity(Warrior(maze), 12, 3)  # W
@@ -352,7 +361,7 @@ def main():
     # ==== GAME LOOP ====
     # Create pygame window (adjust to window size)
     pygame.init()
-    icon_img = pygame.image.load("media/sprites/icon.png")
+    icon_img = pygame.image.load("../media/sprites/icon.png")
     pygame.display.set_icon(icon_img)  # Add this line
     screen = pygame.display.set_mode((1200, 700))
     pygame.display.set_caption("SQUID GAMES❗❗")

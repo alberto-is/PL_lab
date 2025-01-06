@@ -6,45 +6,49 @@ import pygame
 import random
 from maze import *
 
+# Global variables
+SPRITES_PATH = "../media/sprites"  
+SFX_PATH = "../media/sfx"
+
 # Characters
-PLAYER_IMG = pygame.image.load("media/sprites/player.png")
-ARCHER_IMG = pygame.image.load("media/sprites/archer.png")
-WARRIOR_IMG = pygame.image.load("media/sprites/warrior.png")
-MAGE_IMG = pygame.image.load("media/sprites/mage.png")
+PLAYER_IMG = pygame.image.load(f"{SPRITES_PATH}/player.png")
+ARCHER_IMG = pygame.image.load(f"{SPRITES_PATH}/archer.png")
+WARRIOR_IMG = pygame.image.load(f"{SPRITES_PATH}/warrior.png")
+MAGE_IMG = pygame.image.load(f"{SPRITES_PATH}/mage.png")
 
 # Static objects
-COIN_IMG = pygame.image.load("media/sprites/coin.png")
-BOMB_IMG = pygame.image.load("media/sprites/bomb.png")
-EXIT_IMG = pygame.image.load("media/sprites/exit.png")
-KEY_IMG = pygame.image.load("media/sprites/key.png")
-DOOR_IMG = pygame.image.load("media/sprites/door.png")
-TRAP_IMG = pygame.image.load("media/sprites/trap.png")
+COIN_IMG = pygame.image.load(f"{SPRITES_PATH}/coin.png")
+BOMB_IMG = pygame.image.load(f"{SPRITES_PATH}/bomb.png")
+EXIT_IMG = pygame.image.load(f"{SPRITES_PATH}/exit.png")
+KEY_IMG = pygame.image.load(f"{SPRITES_PATH}/key.png")
+DOOR_IMG = pygame.image.load(f"{SPRITES_PATH}/door.png")
+TRAP_IMG = pygame.image.load(f"{SPRITES_PATH}/trap.png")
 
 # Tiles
-FLOOR_IMG = pygame.image.load("media/sprites/floor.png")
-WALL_IMG = pygame.image.load("media/sprites/wall.png")
-VOID_IMG = pygame.image.load("media/sprites/void.png")
+FLOOR_IMG = pygame.image.load(f"{SPRITES_PATH}/floor.png")
+WALL_IMG = pygame.image.load(f"{SPRITES_PATH}/wall.png")
+VOID_IMG = pygame.image.load(f"{SPRITES_PATH}/void.png")
 
 # Other items
-ARROW_IMG = pygame.image.load("media/sprites/arrow.png")
-TURNS_IMG = pygame.image.load("media/sprites/turns.png")
+ARROW_IMG = pygame.image.load(f"{SPRITES_PATH}/arrow.png")
+TURNS_IMG = pygame.image.load(f"{SPRITES_PATH}/turns.png")
 
 # Sfx
 pygame.mixer.init()
-BOMB_EXPLOSION = pygame.mixer.Sound("media/sfx/explosion.wav")
-COIN_PICKUP = pygame.mixer.Sound("media/sfx/coin.wav")
-KEY_PICKUP = pygame.mixer.Sound("media/sfx/key.wav")
-DOOR_OPEN = pygame.mixer.Sound("media/sfx/door.wav")
-TRAP_TRIGGER = pygame.mixer.Sound("media/sfx/teleport.wav")
-ARROW_SHOT = pygame.mixer.Sound("media/sfx/shoot.wav")
-BOMB_SPAWN = pygame.mixer.Sound("media/sfx/spawn.wav")
-PLAYER_MOVE = pygame.mixer.Sound("media/sfx/move.wav")
-EXIT_TOUCH = pygame.mixer.Sound("media/sfx/exit.wav")
-ARROW_HIT = pygame.mixer.Sound("media/sfx/hit.wav")
-ENEMY_KILL = pygame.mixer.Sound("media/sfx/kill.wav")
+BOMB_EXPLOSION = pygame.mixer.Sound(f"{SFX_PATH}/explosion.wav")
+COIN_PICKUP = pygame.mixer.Sound(f"{SFX_PATH}/coin.wav")
+KEY_PICKUP = pygame.mixer.Sound(f"{SFX_PATH}/key.wav")
+DOOR_OPEN = pygame.mixer.Sound(f"{SFX_PATH}/door.wav")
+TRAP_TRIGGER = pygame.mixer.Sound(f"{SFX_PATH}/teleport.wav")
+ARROW_SHOT = pygame.mixer.Sound(f"{SFX_PATH}/shoot.wav")
+BOMB_SPAWN = pygame.mixer.Sound(f"{SFX_PATH}/spawn.wav")
+PLAYER_MOVE = pygame.mixer.Sound(f"{SFX_PATH}/move.wav")
+EXIT_TOUCH = pygame.mixer.Sound(f"{SFX_PATH}/exit.wav")
+ARROW_HIT = pygame.mixer.Sound(f"{SFX_PATH}/hit.wav")
+ENEMY_KILL = pygame.mixer.Sound(f"{SFX_PATH}/kill.wav")
 
 # Music
-GAME_MUSIC = "media/sfx/loop.wav"
+GAME_MUSIC = f"{SFX_PATH}/loop.wav"
 
 # Other constants
 VIEW_RANGE = 10  # How many tiles arround the player can be sees (ONLY RENDER THIS VISION SQUARE, FILL REST WITH VOID)
