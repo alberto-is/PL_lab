@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Objects;
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 class Point {
@@ -275,6 +277,10 @@ public class Listener extends mazeBaseListener {
             System.out.println(path);
         }
 
+        List<Point> points = getAllPointGenerated();
+        // Creamos el objeto python para la representacion del laberinto
+        generatePythonFile(mazeDimensions, entry, exit, points, obstacles);
+
    }
     
    // Métodos para procesar las dimensiones globales
@@ -397,6 +403,7 @@ public class Listener extends mazeBaseListener {
    // Clase interna para representar un obstáculo
    private class Obstacle {
       private String type;
+      private String enemy_type; // Para los enemigos
       private Point position;
       private Point destination; // Para las trampas que tienen punto de destino
 
@@ -411,12 +418,19 @@ public class Listener extends mazeBaseListener {
             this.destination = destination;
       }
 
+      public Obstacle(String type, String enemy_type, Point position) {
+            this.type = type;
+            this.enemy_type = enemy_type;
+            this.position = position;
+      }
+
       public String getType() { return type; }
       public Point getPosition() { return position; }
       public Point getDestination() { return destination; }
+      public String getEnemyType() { return enemy_type; }
 
       public String toString() {
-            return type + " at " + position + (destination != null ? " with destination " + destination : "");
+            return type + " at " + position + (destination != null ? " with destination " + destination : "") + (enemy_type != null ? " of type " + enemy_type : "");
       }
    }
 
@@ -452,8 +466,8 @@ public class Listener extends mazeBaseListener {
         // }
 
         // Crear un nuevo obstáculo de tipo ENEMY y agregarlo a la lista
-        Obstacle enemy = new Obstacle("ENEMY_" + enemyType, new Point(x, y));
-        obstacles.add(new Obstacle("ENEMY_" + enemyType, new Point(x, y)));
+        Obstacle enemy = new Obstacle("ENEMY", enemyType, new Point(x, y));
+        obstacles.add(enemy);
         System.out.println("Enemigo " + enemy);
     }
 
@@ -678,6 +692,67 @@ public class Listener extends mazeBaseListener {
       paths.get(paths.size() - 1).addPoint(point);
       System.out.println("Añadido punto " + point + " al camino actual");
   }
-  
 
+    // Metodo para generar el archivo python
+    private void generatePythonFile(Point mazeDimensions, 
+        Point entry, Point exit, List<Point> list_points_path, List<Obstacle> list_obstacle){
+        FileWriter myWriter = null;
+        try {
+            myWriter = new FileWriter("MazeStructure.py"); 
+            myWriter.write("# Archivo generado desde JAVA, NO MODIFICAR\n\n");
+            // Clase Obstacle
+            myWriter.write("class Obstacle:\n");
+            myWriter.write("\tdef __init__(self, type, position, destination=None, enemy_type=None):\n");
+            myWriter.write("\t\tself.type = type\n");
+            myWriter.write("\t\tself.enemy_type = enemy_type\n");
+            myWriter.write("\t\tself.position = position\n");
+            myWriter.write("\t\tself.destination = destination\n\n");
+
+            // Clase Maze
+            myWriter.write("class MazeStructure:\n");
+            myWriter.write("\tdef __init__(self, dimensions, entry, exit, list_points_path, list_obstacles):\n");
+            myWriter.write("\t\tself.dimensions = dimensions\n");
+            myWriter.write("\t\tself.entry = entry\n");
+            myWriter.write("\t\tself.exit = exit\n");
+            myWriter.write("\t\tself.list_points_path = list_points_path\n");
+            myWriter.write("\t\tself.list_obstacles = list_obstacles\n\n");
+
+            // Crear el objeto MazeStructure
+            myWriter.write(String.format("maze = MazeStructure(\n"));
+            myWriter.write(String.format("\t(%d, %d),\n", mazeDimensions.getX(), mazeDimensions.getY()));
+            myWriter.write(String.format("\t(%d, %d),\n", entry.getX(), entry.getY()));
+            myWriter.write(String.format("\t(%d, %d),\n", exit.getX(), exit.getY()));
+            myWriter.write(String.format("\t[\n"));
+            // Añadimos los puntos de los caminos
+            for (Point p : list_points_path) {
+                myWriter.write(String.format("\t\t(%d, %d),\n", p.getX(), p.getY()));
+            }
+            myWriter.write(String.format("\t],\n"));
+            // Añadir los obstáculos
+            myWriter.write(String.format("\t[\n"));
+            for (Obstacle obs : list_obstacle) {
+                if (obs.getDestination() != null) {
+                    myWriter.write(String.format("\t\tObstacle('%s', (%d, %d), (%d, %d)),\n", obs.getType(), obs.getPosition().getX(), obs.getPosition().getY(), obs.getDestination().getX(), obs.getDestination().getY()));
+                } else if (obs.getEnemyType() != null) {
+                    myWriter.write(String.format("\t\tObstacle('%s', '%s', (%d, %d)),\n", obs.getType(), obs.getEnemyType(), obs.getPosition().getX(), obs.getPosition().getY()));
+                } else {
+                    myWriter.write(String.format("\t\tObstacle('%s', (%d, %d)),\n", obs.getType(), obs.getPosition().getX(), obs.getPosition().getY()));
+                }
+            }
+            System.out.println("Obstaculos puestos correctamente");
+            myWriter.write("\t],\n"); 
+            System.out.println("[ puesto?");
+            myWriter.write(")\n\n");
+            myWriter.flush(); // volcamos la info restante del buffer al archivo
+            myWriter.close();
+            System.out.println("Archivo MazeStructure.py generado correctamente.");
+
+        }catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    
+    }
 }
+
+ 
