@@ -24,7 +24,7 @@ class Maze:
         """Add an entity to the cell at (x, y)."""
         added = False  # Whether the entity was successfully added
         if 0 <= x < self.width and 0 <= y < self.height:  # Check spawn cell bounds
-            cell = self.matrix[y][x]
+            cell = self.matrix[x][y]
             if cell.is_path and cell.entity is None:  # Ensure spawn cell is valid
                 if isinstance(entity, Trap):  # Special handling for traps
                     # Validate target coordinates for traps

@@ -5,7 +5,6 @@ from maze import *
 from interface import *
 import sys
 
-print('MONDONGO SUPREMO')
 maze_path = os.path.join(r"../Maze")
 sys.path.append(maze_path)
 import MazeStructure
@@ -315,6 +314,7 @@ def main():
 
     # Determine cells that are paths
     for point in MazeStructure.maze.list_points_path:
+        print('Point to path:', point)
         maze.matrix[point[0]][point[1]].is_path = True
     
     # ADD OBJECTS TO A MAZE
@@ -351,12 +351,8 @@ def main():
 
     # Add an exit to the maze
     exit = MazeStructure.maze.exit
+    print('exit:', exit)
     maze.add_entity(Exit(maze), exit[0], exit[1])  # E
-
-    # Invalid placement of entities for testing (THESE SHOULD FAIL AND RETURN A FALSE VALUE)
-    maze.add_entity(Warrior(maze), 12, 3)  # W
-    maze.add_entity(Trap(maze, 5, 12), 5, 2)  # T
-
 
     # ==== GAME LOOP ====
     # Create pygame window (adjust to window size)
@@ -374,6 +370,7 @@ def main():
     # Locate exit
     exit_cell = None
     for entity in maze_entities:
+        print('entity:', entity)
         if isinstance(entity, Exit):
             exit_cell = entity.cell
             break

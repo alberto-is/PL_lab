@@ -225,20 +225,20 @@ public class Listener extends mazeBaseListener {
 
        //comprobar que todos los obstaculos esten dentro de algun camino disponible
        // que comparta la misma coordenada con algun camino
-       for (Obstacle obs : obstacles) {
-        boolean isInsidePath = false;
-        for (Path path : paths) {
-        for (Point point : path.points) {
-                if (point.getX() == obs.getPosition().getX() && point.getY() == obs.getPosition().getY()) {
-                    isInsidePath = true;
-                    break;
+        for (Obstacle obs : obstacles) {
+            boolean isInsidePath = false;
+            for (Path path : paths) {
+                for (Point point : path.points) {
+                        if (point.getX() == obs.getPosition().getX() && point.getY() == obs.getPosition().getY()) {
+                            isInsidePath = true;
+                            break;
+                        }
                 }
-        }
-        }
+            }
 
-        if (!isInsidePath) {
-            obstacles_witout_path.add(obs); //Añadimos el obstaculo a la lista de obstaculos sin camino
-            warnings.add("Advertencia: El obstaculo " + obs + " no está en ningún camino.");
+            if (!isInsidePath) {
+                obstacles_witout_path.add(obs); //Añadimos el obstaculo a la lista de obstaculos sin camino
+                warnings.add("Advertencia: El obstaculo " + obs + " no está en ningún camino.");
             }
         }
 
@@ -247,12 +247,38 @@ public class Listener extends mazeBaseListener {
             obstacles.remove(obs);
         }
 
+        // Comprobamos si las coordenadas de destino de las trampas estan en algun camino
+        for (Obstacle obs : obstacles) {
+            if (obs.getType().equals("TRAP")) {
+                boolean isInsidePath = false;
+                for (Path path : paths) {
+                    for (Point point : path.points) {
+                        if (point.getX() == obs.getDestination().getX() && point.getY() == obs.getDestination().getY()) {
+                            isInsidePath = true;
+                            break;
+                        }
+                    }
+                }
+                if (!isInsidePath) {
+                    errors.add("Error: El destino de la trampa " + obs + " no está en ningún camino.");
+                }
+            }
+        }
+
         // Verificar si existe un camino desde la entrada hasta la salida
         if (!isPathAvailable(entry, exit)) {
             errors.add("Error: No existe un camino desde la entrada hasta la salida.");
         }
        
-       
+        // Mostrar advertencias
+        if (!warnings.isEmpty()) {
+            System.out.println("\nAdvertencias encontradas durante el analisis:");
+            for (String warning : warnings) {
+                System.out.println("- " + warning);
+            }
+        }
+
+        // Mostrar errores
         if (!errors.isEmpty()) {
            System.err.println("\nError en la creacion del laberinto:");
            System.err.println("Errores encontrados durante el analisis:");
@@ -263,19 +289,6 @@ public class Listener extends mazeBaseListener {
            System.out.println("Analisis completado sin errores.");
        }
 
-        // Mostrar advertencias
-        if (!warnings.isEmpty()) {
-            System.out.println("\nAdvertencias encontradas durante el analisis:");
-            for (String warning : warnings) {
-                System.out.println("- " + warning);
-            }
-        }
-
-       //Mostrar por pantalla todos los puntos de los caminos
-        System.out.println("----------Puntos de los caminos----------");
-        for (Path path : paths) {
-            System.out.println(path);
-        }
 
         List<Point> points = getAllPointGenerated();
         // Creamos el objeto python para la representacion del laberinto
@@ -494,9 +507,9 @@ public class Listener extends mazeBaseListener {
 
       validateCoordinates(x, y, "llave"); // Validar que las coordenadas están dentro del laberinto
 
-      if (!errors.isEmpty()) {
-        return; // Salir del método sin procesar el elemento si hay errores
-      }
+    //   if (!errors.isEmpty()) {
+    //     return; // Salir del método sin procesar el elemento si hay errores
+    //   }
 
       obstacles.add(new Obstacle("KEY", new Point(x, y)));
       Obstacle key = new Obstacle("KEY", new Point(x, y));
@@ -529,9 +542,9 @@ public class Listener extends mazeBaseListener {
         validateCoordinates(x1, y1, "trampa (origen)");
         validateCoordinates(x2, y2, "trampa (destino)");
 
-        if (!errors.isEmpty()) {
-            return; // Salir del método sin procesar el elemento si hay errores
-        }
+        // if (!errors.isEmpty()) {
+        //     return; // Salir del método sin procesar el elemento si hay errores
+        // }
          
         obstacles.add(new Obstacle("TRAP", 
             new Point(x1, y1), 
@@ -699,7 +712,7 @@ public class Listener extends mazeBaseListener {
         FileWriter myWriter = null;
         try {
             myWriter = new FileWriter("MazeStructure.py"); 
-            myWriter.write("# Archivo generado desde JAVA, NO MODIFICAR\n\n");
+            myWriter.write("# Archivo generado desde JAVA, ¡NO MODIFICAR!\n\n");
             // Clase Obstacle
             myWriter.write("class Obstacle:\n");
             myWriter.write("\tdef __init__(self, type, position, destination=None, enemy_type=None):\n");
@@ -734,14 +747,13 @@ public class Listener extends mazeBaseListener {
                 if (obs.getDestination() != null) {
                     myWriter.write(String.format("\t\tObstacle('%s', (%d, %d), (%d, %d)),\n", obs.getType(), obs.getPosition().getX(), obs.getPosition().getY(), obs.getDestination().getX(), obs.getDestination().getY()));
                 } else if (obs.getEnemyType() != null) {
-                    myWriter.write(String.format("\t\tObstacle('%s', '%s', (%d, %d)),\n", obs.getType(), obs.getEnemyType(), obs.getPosition().getX(), obs.getPosition().getY()));
+                    myWriter.write(String.format("\t\tObstacle('%s', (%d, %d),enemy_type='%s'),\n", obs.getType(), obs.getPosition().getX(), obs.getPosition().getY(), obs.getEnemyType()));
                 } else {
                     myWriter.write(String.format("\t\tObstacle('%s', (%d, %d)),\n", obs.getType(), obs.getPosition().getX(), obs.getPosition().getY()));
                 }
             }
-            System.out.println("Obstaculos puestos correctamente");
+            
             myWriter.write("\t],\n"); 
-            System.out.println("[ puesto?");
             myWriter.write(")\n\n");
             myWriter.flush(); // volcamos la info restante del buffer al archivo
             myWriter.close();
