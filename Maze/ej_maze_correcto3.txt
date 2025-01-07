@@ -50,5 +50,5 @@ paths {
 obstacles {
     door (6, 10);  // Door at (6, 10)
     bomb (14, 6);  // Bomb at (14, 6)
-    trap (10, 14) to (0, 23); // Trap at (10, 14)
+    trap (10, 14) to (24, 12); // Trap at (10, 14)
 }

@@ -1,0 +1,129 @@
+maze { dimensions 75 x 75 };
+
+// Define the entry and exit points
+entry (74, 37);
+exit (0, 0);
+
+/*
+Define rooms and obstacles in a complex layout
+*/
+
+rooms {
+    // Starting Area: Large room with multiple enemies
+    room from (70, 35) dimensions 5 x 5 {
+        enemy (71, 36) type warrior;
+        enemy (72, 37) type archer;
+        enemy (73, 38) type mage;
+        key (71, 38);
+    }
+
+    // Central Hub: Major connection point
+    room from (35, 35) dimensions 8 x 8 {
+        enemy (37, 37) type warrior;
+        enemy (38, 38) type warrior;
+        enemy (39, 39) type mage;
+        trap (36, 36) to (38, 38);
+        key (40, 40);
+    }
+
+    // Treasure Chamber
+    room from (15, 15) dimensions 6 x 6 {
+        enemy (17, 17) type mage;
+        enemy (18, 18) type archer;
+        key (16, 16);
+        trap (15, 15) to (17, 17);
+    }
+
+    // Archer's Lookout
+    room from (60, 60) dimensions 4 x 4 {
+        enemy (61, 61) type archer;
+        enemy (62, 62) type archer;
+        enemy (63, 63) type archer;
+    }
+
+    // Mage's Study
+    room from (10, 50) dimensions 5 x 5 {
+        enemy (12, 52) type mage;
+        enemy (11, 51) type mage;
+        trap (10, 50) to (12, 52);
+        key (13, 53);
+    }
+
+    // Warrior's Training Ground
+    room from (50, 10) dimensions 7 x 7 {
+        enemy (52, 12) type warrior;
+        enemy (53, 13) type warrior;
+        enemy (54, 14) type warrior;
+        trap (51, 11) to (53, 13);
+    }
+
+    // Secret Chamber
+    room from (25, 65) dimensions 4 x 4 {
+        key (26, 66);
+        trap (25, 65) to (27, 67);
+    }
+
+    // Final Challenge Room
+    room from (5, 5) dimensions 6 x 6 {
+        enemy (6, 6) type mage;
+        enemy (7, 7) type warrior;
+        enemy (8, 8) type archer;
+        trap (5, 5) to (8, 8);
+    }
+}
+
+paths {
+    // Main paths
+    path from (74, 37) to (70, 35);    // Entry to Starting Area
+    path from (70, 35) to (60, 60);    // To Archer's Lookout
+    path from (60, 60) to (35, 35);    // To Central Hub
+    path from (35, 35) to (15, 15);    // To Treasure Chamber
+    path from (35, 35) to (10, 50);    // To Mage's Study
+    path from (35, 35) to (50, 10);    // To Warrior's Training Ground
+    path from (15, 15) to (5, 5);      // To Final Challenge Room
+    path from (5, 5) to (0, 0);        // To Exit
+
+    // Secret paths
+    path from (60, 60) to (25, 65);    // Secret path to Secret Chamber
+    path from (25, 65) to (10, 50);    // Escape route from Secret Chamber
+    
+    // Alternative routes
+    path from (50, 10) to (15, 15);    // Alternative path to Treasure Chamber
+    path from (10, 50) to (5, 5);      // Alternative path to Final Challenge Room
+
+    // Dead ends and decoys
+    path {
+        point (45, 45);
+        point (46, 46);
+        point (47, 47);
+    }
+    path {
+        point (20, 70);
+        point (21, 71);
+    }
+}
+
+obstacles {
+    // Strategic doors requiring keys
+    door (69, 35);  // Door to Starting Area
+    door (35, 40);  // Door to Central Hub
+    door (15, 20);  // Door to Treasure Chamber
+    door (5, 10);   // Door to Final Challenge Room
+    
+    // Traps in corridors
+    trap (55, 55) to (58, 58);
+    trap (30, 30) to (33, 33);
+    trap (40, 20) to (43, 23);
+    
+    // Bombs in strategic locations
+    bomb (65, 65);
+    bomb (45, 45);
+    bomb (25, 25);
+    bomb (15, 35);
+    bomb (35, 15);
+    
+    // Additional security measures
+    trap (20, 60) to (23, 63);
+    door (40, 10);
+    door (10, 40);
+}

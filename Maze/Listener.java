@@ -97,9 +97,9 @@ public class Listener extends mazeBaseListener {
         Point p = new Point(x, y);
         boolean isRepeated = false;
         for (Point point : list_obstacles_points) {
-            if (point.getX() == x && point.getY() == y && !elementType.equals("habitación")) {
+            if (point.getX() == x && point.getY() == y && !elementType.equals("habitación") && !elementType.equals("trampa (destino)")) {
                 isRepeated = true;
-                errors.add(String.format("Error: Coordenadas (%d,%d) ya han sido utilizadas por otro elemento", x, y));
+                errors.add(String.format("Error: Coordenadas (%d,%d) de %s ya han sido utilizadas por otro elemento", x, y, elementType));
                 break;
             }
         }
@@ -142,15 +142,19 @@ public class Listener extends mazeBaseListener {
 
     // Método para construir el grafo a partir de los caminos definidos
     private void buildGraph() {
+        
         for (Path path : paths) {
             List<Point> points = path.points;
-            for (int i = 0; i < points.size() - 1; i++) {
+            for (int i = 0; i < points.size(); i++) {
                 Point current = points.get(i);
-                Point next = points.get(i + 1);
-
-                // Agregar conexiones bidireccionales
-                graph.computeIfAbsent(current, k -> new ArrayList<>()).add(next); // Añadir next a la lista de adyacencia de current
-                graph.computeIfAbsent(next, k -> new ArrayList<>()).add(current); // Añadir current a la lista de adyacencia de next
+                graph.computeIfAbsent(current, k -> new ArrayList<>());
+    
+                // Conectar con el siguiente punto, si existe
+                if (i < points.size() - 1) {
+                    Point next = points.get(i + 1);
+                    graph.get(current).add(next);
+                    graph.computeIfAbsent(next, k -> new ArrayList<>()).add(current);
+                }
             }
         }
 
@@ -241,6 +245,22 @@ public class Listener extends mazeBaseListener {
                 warnings.add("Advertencia: El obstaculo " + obs + " no está en ningún camino.");
             }
         }
+
+        // Comprobamos si hay mas puertas que llaves 
+        int doors = 0;
+        int keys = 0;
+
+        for (Obstacle obs : obstacles) {
+            if (obs.getType().equals("DOOR")) {
+                doors++;
+            } else if (obs.getType().equals("KEY")) {
+                keys++;
+            }
+        }
+        if (doors > keys) {
+            warnings.add("Advertencia: Hay más puertas que llaves en el laberinto. Usa las llaves con precaución.");
+        }
+
 
         // Eliminamos los obstaculos que no estan en ningun camino
         for (Obstacle obs : obstacles_witout_path) {
