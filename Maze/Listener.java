@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Vector;
 import java.util.Objects;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 
 
 class Point {
@@ -105,7 +107,8 @@ public class Listener extends mazeBaseListener {
         }
 
         // Añadir la coordenada a la lista de puntos de obstáculos si no esta repetida
-        if (!isRepeated) {
+        if (!isRepeated && !elementType.equals("habitación")) {
+            System.out.println("Añadido punto " + p + " a la lista de puntos de obstáculos de tipo " + elementType);
             list_obstacles_points.add(p); 
         } 
         

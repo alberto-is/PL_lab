@@ -4,51 +4,40 @@ maze { dimensions 25 x 25 };
 entry (24, 12);
 exit (0, 0);
 
-/*
-Define rooms and obstacles
-*/
-
 rooms {
-    // Room 1: from (0, 0) with dimensions 5x5, contains an archer at (0, 1)
-    room from (0, 0) dimensions 5 x 5 {
-        enemy (0, 1) type archer;
-        enemy (2, 2) type mage;
-    }
-    // Room 2: from (6, 6) with dimensions 4x4, contains a warrior at (7, 7) and a key at (8, 8)
-    room from (6, 6) dimensions 4 x 4 {
-        enemy (7, 7) type warrior;
-        key (8, 8);
-    }
-    // Room 3: from (10, 10) with dimensions 5x5, contains traps and a mage
-    room from (10, 10) dimensions 5 x 5 {
-        enemy (12, 12) type mage;
-        trap (11, 11) to (13, 13);
-    }
-    // Room 4: from (20, 20) with dimensions 3x3, contains a key
-    room from (20, 20) dimensions 3 x 3 {
-        key (21, 21);
-    }
+    // Room 1: from (0, 0) with dimensions 5x5
+    room from (0, 0) dimensions 5 x 5;
+    // Room 2: from (6, 6) with dimensions 4x4
+    room from (6, 6) dimensions 4 x 4;
+    // Room 3: from (10, 10) with dimensions 5x5
+    room from (10, 10) dimensions 5 x 5;
+    // Room 4: from (20, 20) with dimensions 3x3
+    room from (20, 20) dimensions 3 x 3;
     // Room 5: from (15, 5) with dimensions 4x4
-    room from (15, 5) dimensions 4 x 4 {
-        enemy (16, 6) type archer;
-    }
+    room from (15, 5) dimensions 4 x 4;
 }
 
-// Define paths
 paths {
-    path from (0, 4) to (24, 12);     // Main path connecting entry to exit
-    path from (2, 2) to (6, 6);       // Path connecting Room 1 to Room 2
-    path from (8, 8) to (10, 10);     // Path connecting Room 2 to Room 3
-    path from (13, 13) to (20, 20);   // Path connecting Room 3 to Room 4
-    path from (6, 10) to (15, 5);     // Path connecting Room 2 to Room 5
+    path from (0, 4) to (24, 12);
+    path from (2, 2) to (6, 6);
+    path from (8, 8) to (10, 10);
+    path from (13, 13) to (20, 20);
+    path from (6, 10) to (15, 5);
     path {
-        point (12, 5);              // Single point path at (12, 5)
+        point (12, 5);
     }
 }
 
-// Define obstacles
 obstacles {
-    door (6, 10);  // Door at (6, 10)
-    bomb (14, 6);  // Bomb at (14, 6)
-    trap (10, 14) to (24, 12); // Trap at (10, 14)
+    enemy (0, 1) type archer;    // Was in room 1
+    enemy (2, 2) type mage;      // Was in room 1
+    enemy (7, 7) type warrior;   // Was in room 2
+    key (8, 8);                  // Was in room 2
+    enemy (12, 12) type mage;    // Was in room 3
+    trap (11, 11) to (13, 13);   // Was in room 3
+    key (21, 21);                // Was in room 4
+    enemy (16, 6) type archer;   // Was in room 5
+    door (6, 10);
+    bomb (14, 6);
+    trap (10, 14) to (24, 12);
 }

@@ -1,22 +1,14 @@
-maze { dimensions 10 x 10} ;
+maze { dimensions 10 x 10 } ;
 
-// definir entrada y salida
+// Define the entry and exit points
 entry (0,0);
 exit (9,9);
 
-/* ejemplo de comentario
-compuesto */
-
 rooms {
-    room from (1, 1) dimensions 3 x 3 {
-        bomb (2, 1);
-        enemy (3, 3) type archer;
-        door (1, 1);
-    }
-    room from (5, 5) dimensions 2 x 2 {
-        key (6, 6);
-        trap (5, 5) to (5, 6);
-    }
+    // Room 1: from (1, 1) with dimensions 3x3
+    room from (1, 1) dimensions 3 x 3;
+    // Room 2: from (5, 5) with dimensions 2x2
+    room from (5, 5) dimensions 2 x 2;
 }
 
 paths {
@@ -35,6 +27,11 @@ paths {
 }
 
 obstacles {
+    bomb (2, 1);       
+    enemy (3, 3) type archer;  
+    door (1, 1);       
+    key (6, 6);        
+    trap (5, 5) to (5, 6);  
     coin (4, 4);
     bomb (6, 7);
 }

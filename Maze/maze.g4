@@ -20,7 +20,7 @@ rooms: ROOMS LLAVE_IZQ roomList LLAVE_DER;
 roomList: room roomList 
         | ;
 
-room: ROOM FROM PAREN_IZQ number COMA number PAREN_DER dimensions LLAVE_IZQ obstacleList LLAVE_DER # dim_room;
+room: ROOM FROM PAREN_IZQ number COMA number PAREN_DER dimensions PUNTO_COMA # dim_room;
 
 obstacleList: obstacle obstacleList 
             | ;
