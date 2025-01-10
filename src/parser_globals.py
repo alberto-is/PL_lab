@@ -3,23 +3,25 @@ from lexer import tokens, lexer
 from maze import Maze, Bomb, Coin, Door, Key, Trap, Exit, Player, Warrior, Mage, Archer
 
 current_maze = None
+entry_position = None
+exit_position = None
 key_count = 0
 door_count = 0
 
+# Parsing rules
 def p_program(p):
     'program : level'
-    if key_count < door_count:
-        raise ValueError(f"Number of keys ({key_count}) is not equal or larger than number of doors ({door_count})")
+    if key_count != door_count:
+        raise ValueError(f"Number of keys ({key_count}) does not match number of doors ({door_count})")
+    if not current_maze.add_entity(Player(current_maze), entry_position[0], entry_position[1]):
+        raise ValueError(f"Error creating player at {entry_position}. Out of bounds, occupied, or not a path.")
+    if not current_maze.add_entity(Exit(current_maze), exit_position[0], exit_position[1]):
+        raise ValueError(f"Error creating exit at {exit_position}. Out of bounds, occupied, or not a path.")
     p[0] = current_maze
 
 def p_level(p):
     'level : maze entry exit rooms paths obstacles'
-    entry_pos = p[2]
-    exit_pos = p[3]
-    if not current_maze.add_entity(Player(current_maze), entry_pos[0], entry_pos[1]):
-        raise ValueError(f"Error creating player at {entry_pos}. Out of bounds, occupied, or not a path.")
-    if not current_maze.add_entity(Exit(current_maze), exit_pos[0], exit_pos[1]):
-        raise ValueError(f"Error creating exit at {exit_pos}. Out of bounds, occupied, or not a path.")
+    pass
 
 def p_maze(p):
     'maze : MAZE LLAVE_IZQ dimensions LLAVE_DER PUNTO_COMA'
@@ -33,11 +35,13 @@ def p_dimensions(p):
 
 def p_entry(p):
     'entry : ENTRY PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA'
-    p[0] = (p[3], p[5])
+    global entry_position
+    entry_position = (p[3], p[5])
 
 def p_exit(p):
     'exit : EXIT PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA'
-    p[0] = (p[3], p[5])
+    global exit_position
+    exit_position = (p[3], p[5])
 
 def p_rooms(p):
     'rooms : ROOMS LLAVE_IZQ roomList LLAVE_DER'
