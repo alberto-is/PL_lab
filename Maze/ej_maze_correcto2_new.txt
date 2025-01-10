@@ -37,8 +37,8 @@ obstacles {
     bomb (1, 2);  // Bomb at (1, 2)
     enemy (0, 0) type archer;
     enemy (0, 8) type mage;
-    trap (1, 7) to (4, 1);
+    trap (1, 7) to (1, 4);
     enemy (4, 4) type warrior;
-    key (5, 3);
     coin (1, 4);
+    key (5, 3);
 }

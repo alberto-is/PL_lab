@@ -139,96 +139,14 @@ public class Listener extends mazeBaseListener {
         }
         return false;
     }
-    
-    // Estructura Map que almacenara las conexiones entre los puntos
-    private Map<Point, List<Point>> graph = new HashMap<>();
-
-    // Método para construir el grafo a partir de los caminos definidos
-    private void buildGraph() {
-        
-        for (Path path : paths) {
-            List<Point> points = path.points;
-            for (int i = 0; i < points.size(); i++) {
-                Point current = points.get(i);
-                graph.computeIfAbsent(current, k -> new ArrayList<>());
-    
-                // Conectar con el siguiente punto, si existe
-                if (i < points.size() - 1) {
-                    Point next = points.get(i + 1);
-                    graph.get(current).add(next);
-                    graph.computeIfAbsent(next, k -> new ArrayList<>()).add(current);
-                }
-            }
-        }
-
-            // Llamada para añadir las conexiones faltantes entre puntos adyacentes
-            addMissingConnections(graph);
-    }
-
-    // Método que añade las conexiones faltantes entre puntos adyacentes
-    public static void addMissingConnections(Map<Point, List<Point>> graph) {
-        for (Point p1 : graph.keySet()) {
-            for (Point p2 : graph.keySet()) {
-                // Si los puntos están adyacentes pero no están conectados
-                if (isAdjacent(p1, p2) && !graph.get(p1).contains(p2)) {
-                    graph.get(p1).add(p2);
-                    graph.get(p2).add(p1); // Conexión bidireccional añadida 
-                }
-            }
-        }
-    }
-
-    // Función que revisa si dos puntos son adyacentes
-    public static boolean isAdjacent(Point p1, Point p2) {
-        return (Math.abs(p1.getX() - p2.getX()) == 1 && p1.getY() == p2.getY()) || // Horizontal
-            (Math.abs(p1.getY() - p2.getY()) == 1 && p1.getX() == p2.getX());   // Vertical
-    }
-
-
-    // Metodo para comprobar si el laberinto tiene un camino entre el punto de entrada y el de salida
-    private boolean isPathAvailable(Point start, Point end) {
-        // Comprobamos que los puntos de entrada y salida estén
-        if (!graph.containsKey(start) || !graph.containsKey(end)) {
-            return false;
-        }
-
-        Set<Point> visited = new HashSet<>(); // Conjunto de nodos visitados
-        Queue<Point> queue = new LinkedList<>(); // Cola para el recorrido BFS
-        queue.add(start);
-
-        while (!queue.isEmpty()) {
-            Point current = queue.poll();
-            if (current.equals(end)) {
-                return true; // Se encontró un camino
-            }
-            visited.add(current);
-
-            // Explorar vecinos
-            for (Point neighbor : graph.getOrDefault(current, new ArrayList<>())) {
-                if (!visited.contains(neighbor)) {
-                    queue.add(neighbor);
-                }
-            }
-        }
-
-        return false; // No se encontró un camino
-    }
-
 
     //--------------------------------------------------------------------------------------------------------------------------
     // Metodos Del programa
     //--------------------------------------------------------------------------------------------------------------------------
 
-   @Override 
-   public void enterLevel(mazeParser.LevelContext ctx){   
-      System.out.println("Llamada a Level");       
-   } 
-   
    @Override
    public void exitLevel(mazeParser.LevelContext ctx) {
        List<Obstacle> obstacles_witout_path = new ArrayList<>();
-
-       buildGraph(); // Construir el grafo a partir de los caminos
 
        //comprobar que todos los obstaculos esten dentro de algun camino disponible
        // que comparta la misma coordenada con algun camino
@@ -260,8 +178,12 @@ public class Listener extends mazeBaseListener {
                 keys++;
             }
         }
+
         if (doors > keys) {
-            warnings.add("Advertencia: Hay más puertas que llaves en el laberinto. Usa las llaves con precaución.");
+            if (keys == 0) {
+                errors.add("Error: No hay llaves en el laberinto para abrir las puertas.");
+            } else 
+                warnings.add("Advertencia: Hay más puertas que llaves en el laberinto. Usa las llaves con precaución.");   
         }
 
 
@@ -287,11 +209,6 @@ public class Listener extends mazeBaseListener {
                 }
             }
         }
-
-        // Verificar si existe un camino desde la entrada hasta la salida
-        if (!isPathAvailable(entry, exit)) {
-            errors.add("Error: No existe un camino desde la entrada hasta la salida.");
-        }
        
         // Mostrar advertencias
         if (!warnings.isEmpty()) {
@@ -308,14 +225,13 @@ public class Listener extends mazeBaseListener {
            for (String error : errors) {
                System.err.println("- " + error);
            }
+           System.err.println("No se ha podido generar el archivo MazeStructure.py.");
        } else {
            System.out.println("Analisis completado sin errores.");
+           List<Point> points = getAllPointGenerated();
+           // Creamos el objeto python para la representacion del laberinto
+           generatePythonFile(mazeDimensions, entry, exit, points, obstacles);
        }
-
-
-        List<Point> points = getAllPointGenerated();
-        // Creamos el objeto python para la representacion del laberinto
-        generatePythonFile(mazeDimensions, entry, exit, points, obstacles);
 
    }
     
@@ -341,9 +257,9 @@ public class Listener extends mazeBaseListener {
       int y = Integer.parseInt(ctx.number(1).getText());
       validateCoordinates(x, y, "punto de entrada");
 
-    //   if (!errors.isEmpty()) {
-    //     return; // Salir del método sin procesar el elemento si hay errores
-    //   }
+      if (!errors.isEmpty()) {
+        return; // Salir del método sin procesar el elemento si hay errores
+      }
 
       entry = new Point(x, y);
       System.out.println("Punto de entrada: " + entry);
@@ -356,9 +272,9 @@ public class Listener extends mazeBaseListener {
       int y = Integer.parseInt(ctx.number(1).getText());
       validateCoordinates(x, y, "punto de salida");
 
-    //   if (!errors.isEmpty()) {
-    //     return; // Salir del método sin procesar el elemento si hay errores
-    //   }
+      if (!errors.isEmpty()) {
+        return; // Salir del método sin procesar el elemento si hay errores
+      }
 
       exit = new Point(x, y);
       System.out.println("Punto de salida: " + exit);
@@ -399,9 +315,9 @@ public class Listener extends mazeBaseListener {
 
        validateRoomDimensions(startX, startY, tempDimensions.getX(), tempDimensions.getY(), "habitación");
 
-    //    if (!errors.isEmpty()) {
-    //     return; // Salir del método sin procesar el elemento si hay errores
-    //    }
+       if (!errors.isEmpty()) {
+        return; // Salir del método sin procesar el elemento si hay errores
+       }
        
        // Crear la nueva habitación con la posición y las dimensiones almacenadas
        currentRoom = new Room(position, tempDimensions);
@@ -479,9 +395,9 @@ public class Listener extends mazeBaseListener {
 
         validateCoordinates(x, y, "bomba"); // Validar que las coordenadas están dentro del laberinto
 
-        // if (!errors.isEmpty()) {
-        //     return; // Salir del método sin procesar el elemento si hay errores
-        // }
+        if (!errors.isEmpty()) {
+            return; // Salir del método sin procesar el elemento si hay errores
+        }
 
         // Crear un nuevo obstáculo de tipo BOMB y agregarlo a la lista
         Obstacle bomb = new Obstacle("BOMB", new Point(x, y));
@@ -497,9 +413,9 @@ public class Listener extends mazeBaseListener {
 
         validateCoordinates(x, y, "enemigo"); // Validar que las coordenadas están dentro del laberinto
 
-        // if (!errors.isEmpty()) {
-        //     return; // Salir del método sin procesar el elemento si hay errores
-        // }
+        if (!errors.isEmpty()) {
+            return; // Salir del método sin procesar el elemento si hay errores
+        }
 
         // Crear un nuevo obstáculo de tipo ENEMY y agregarlo a la lista
         Obstacle enemy = new Obstacle("ENEMY", enemyType, new Point(x, y));
@@ -514,9 +430,9 @@ public class Listener extends mazeBaseListener {
 
       validateCoordinates(x, y, "puerta"); // Validar que las coordenadas están dentro del laberinto
 
-    //   if (!errors.isEmpty()) {
-    //     return; // Salir del método sin procesar el elemento si hay errores
-    //   }
+      if (!errors.isEmpty()) {
+        return; // Salir del método sin procesar el elemento si hay errores
+      }
 
       obstacles.add(new Obstacle("DOOR", new Point(x, y)));
       Obstacle door = new Obstacle("DOOR", new Point(x, y));
@@ -530,9 +446,9 @@ public class Listener extends mazeBaseListener {
 
       validateCoordinates(x, y, "llave"); // Validar que las coordenadas están dentro del laberinto
 
-    //   if (!errors.isEmpty()) {
-    //     return; // Salir del método sin procesar el elemento si hay errores
-    //   }
+      if (!errors.isEmpty()) {
+        return; // Salir del método sin procesar el elemento si hay errores
+      }
 
       obstacles.add(new Obstacle("KEY", new Point(x, y)));
       Obstacle key = new Obstacle("KEY", new Point(x, y));
@@ -546,9 +462,9 @@ public class Listener extends mazeBaseListener {
 
       validateCoordinates(x, y, "moneda"); // Validar que las coordenadas están dentro del laberinto
 
-    //   if (!errors.isEmpty()) {
-    //     return; // Salir del método sin procesar el elemento si hay errores
-    //   }
+      if (!errors.isEmpty()) {
+        return; // Salir del método sin procesar el elemento si hay errores
+      }
 
       obstacles.add(new Obstacle("COIN", new Point(x, y)));
       Obstacle coin = new Obstacle("COIN", new Point(x, y));
@@ -565,9 +481,9 @@ public class Listener extends mazeBaseListener {
         validateCoordinates(x1, y1, "trampa (origen)");
         validateCoordinates(x2, y2, "trampa (destino)");
 
-        // if (!errors.isEmpty()) {
-        //     return; // Salir del método sin procesar el elemento si hay errores
-        // }
+        if (!errors.isEmpty()) {
+            return; // Salir del método sin procesar el elemento si hay errores
+        }
          
         obstacles.add(new Obstacle("TRAP", 
             new Point(x1, y1), 
