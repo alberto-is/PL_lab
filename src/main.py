@@ -314,131 +314,98 @@ def build_maze(file_path):
     print("\nParser output:")
     try:
         maze = parse(input_string)  # Parse the input using the parser
-        print("Parsing successful!")
     except Exception as e:
-        print(f"Parsing failed: {e}")
+        print(f"Error while parsing: {e}")
     return maze
 
 
 TURNS_TO_ESCAPE = 0  # Number of turns used to escape the maze (global variable)
 def main():
+    # ==== SETUP ====
+    while True:
+        maze_file, should_run_game = run_menu()  # Display the main menu
 
-    maze_file = "./Maze/ej_maze_correcto_semantica.txt"
-    if not os.path.exists(maze_file):
-        print(f"File not found: {maze_file}")
-
-    # Build the maze from the file
-    maze = build_maze(maze_file)
-    if maze is None:
-        print("Maze not created")
-        # Create alternate test maze
-
-        # Create a test maze and print it
-        maze = Maze(11, 11)
-        
-        # Change cells to be all path except for outer ring
-        for x in range(1, 10):
-            for y in range(1, 10):
-                maze.matrix[x][y].is_path = True
-
-        maze.matrix[0][5].is_path = True  # Top is a path too
-        maze.matrix[10][5].is_path = True  # Bottom is a path too
-        
-        # ADD OBJECTS TO A MAZE
-        # Add a player to the maze 
-        maze.add_entity(Player(maze), 5, 5)  # P
-
-        # Add a warrior to the maze
-        maze.add_entity(Warrior(maze), 3, 3)  # W
-
-        # Add a mage to the maze
-        maze.add_entity(Mage(maze), 7, 7)  # M
-
-        # Add an archer to the maze
-        maze.add_entity(Archer(maze), 3, 7)  # A
-
-        # Add a coin to the maze
-        maze.add_entity(Coin(maze), 5, 7)  # C
-
-        # Add a Bomb to the maze
-        maze.add_entity(Bomb(maze), 7, 3)  # B
-
-        # Add door at the bottom
-        maze.add_entity(Door(maze), 5, 10)  # D
-
-        # Add a key to the maze 
-        maze.add_entity(Key(maze), 1, 6)  # K
-
-        # Add an exit to the maze
-        maze.add_entity(Exit(maze), 5, 0)  # E
-
-        # Add a trap to the maze
-        maze.add_entity(Trap(maze, 5, 9), 5, 2)  # T (target first, then location)
-
-    # ==== GAME LOOP ====
-    # Create pygame window (adjust to window size)
-    pygame.init()
-    icon_img = pygame.image.load("media/sprites/icon.png")
-    pygame.display.set_icon(icon_img)  # Add this line
-    screen = pygame.display.set_mode((1200, 700))
-    pygame.display.set_caption("Dungeon Escape")
-    clock = pygame.time.Clock()
-    play_music()
-    
-    # Find entities in maze by searching for them in the matrix
-    maze_entities = update_entity_list(maze)
-
-    # Locate exit (Should never happen as the parser ensures an exit is present)
-    exit_cell = None
-    for entity in maze_entities:
-        if isinstance(entity, Exit):
-            exit_cell = entity.cell
-            break
-    if exit_cell is None:
-        raise Exception("INVALID MAZE: No exit")
-    
-    running = True
-    while running:
-        # Event handling for quitting
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        # Update the display (can show the current state of the maze)
-        update_display(maze, screen, TURNS_TO_ESCAPE)
-
-        # 1. Player Movement (waits for input)
-        win = move_player(maze, maze_entities, screen)
-        maze_entities = update_entity_list(maze)  # Refresh entity list after player's move
-        if win:  # If the player wins, exit the loop
+        if not should_run_game:  # Exit the game
+            print("Exiting...")
             break
 
-        # 2. Arrow Movement
-        update_arrows(maze, maze_entities, screen)
-        maze_entities = update_entity_list(maze)
+        if not maze_file:  # No file selected
+            msgbox("No file selected", "Please select a maze file to continue.", 2)
+            continue
 
-        # 3. Bomb Explosion Logic
-        update_bombs(maze, maze_entities, screen)
-        maze_entities = update_entity_list(maze)
+        maze = build_maze(maze_file)
+        if maze is None:
+            msgbox("Failed to build maze", "Failed to build maze, check parser output for more details.", 2)
+        else:
+            print("Maze successfully loaded. Starting game...")
 
-        # 4. Enemy Movement Logic
-        move_enemies(maze, maze_entities, screen)
-        maze_entities = update_entity_list(maze)
+            # ==== GAME LOOP ====
+            # Create pygame window (adjust to window size)
+            pygame.init()
+            icon_img = pygame.image.load("media/sprites/icon.png")
+            pygame.display.set_icon(icon_img)  # Add this line
+            screen = pygame.display.set_mode((1200, 700))
+            pygame.display.set_caption("Dungeon Escape")
+            clock = pygame.time.Clock()
+            play_music()
+            
+            # Find entities in maze by searching for them in the matrix
+            maze_entities = update_entity_list(maze)
 
-        # 5. Archers Shoot Arrows
-        shoot_arrows(maze, maze_entities, screen)
-        maze_entities = update_entity_list(maze)
+            # Locate exit (Should never happen as the parser ensures an exit is present)
+            exit_cell = None
+            for entity in maze_entities:
+                if isinstance(entity, Exit):
+                    exit_cell = entity.cell
+                    break
+            if exit_cell is None:
+                raise Exception("INVALID MAZE: No exit")
 
-        # 6. Mages Spawn Bombs
-        summon_bombs(maze, maze_entities, screen)
-        maze_entities = update_entity_list(maze)
+            # Main game loop
+            running = True
+            while running:
+                # Event handling for quitting
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
 
-        # Update the display again at the end of the turn
-        update_display(maze, screen, TURNS_TO_ESCAPE)
-        clock.tick(30)  # Limit to 30 FPS
+                # Update the display (can show the current state of the maze)
+                update_display(maze, screen, TURNS_TO_ESCAPE)
 
-    print("Player escaped!")
-    print(f"Total turns to escape: {TURNS_TO_ESCAPE}")
+                # 1. Player Movement (waits for input)
+                win = move_player(maze, maze_entities, screen)
+                maze_entities = update_entity_list(maze)  # Refresh entity list after player's move
+                if win:  # If the player wins, exit the loop
+                    break
+
+                # 2. Arrow Movement
+                update_arrows(maze, maze_entities, screen)
+                maze_entities = update_entity_list(maze)
+
+                # 3. Bomb Explosion Logic
+                update_bombs(maze, maze_entities, screen)
+                maze_entities = update_entity_list(maze)
+
+                # 4. Enemy Movement Logic
+                move_enemies(maze, maze_entities, screen)
+                maze_entities = update_entity_list(maze)
+
+                # 5. Archers Shoot Arrows
+                shoot_arrows(maze, maze_entities, screen)
+                maze_entities = update_entity_list(maze)
+
+                # 6. Mages Spawn Bombs
+                summon_bombs(maze, maze_entities, screen)
+                maze_entities = update_entity_list(maze)
+
+                # Update the display again at the end of the turn
+                update_display(maze, screen, TURNS_TO_ESCAPE)
+                clock.tick(30)  # Limit to 30 FPS
+
+            print("Player escaped!")
+            print(f"Total turns to escape: {TURNS_TO_ESCAPE}")
+            msgbox("Congratulations!", f"You escaped the maze!\nTotal turns to escape: {TURNS_TO_ESCAPE}", 1)
+            pygame.quit()
         
 
 if __name__ == "__main__":

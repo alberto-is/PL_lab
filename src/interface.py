@@ -5,6 +5,8 @@ Module to handle the interface of the game. Both menus and the maze itself.
 import pygame
 import random
 from maze import *
+import tkinter as tk
+from tkinter import filedialog, messagebox
 
 # Characters
 PLAYER_IMG = pygame.image.load("media/sprites/player.png")
@@ -250,6 +252,71 @@ def play_music():
     print("Music provided courtesy of Abundant Music (https://pernyblom.github.io/abundant-music/index.html)")
     pygame.mixer.music.load(GAME_MUSIC)
     pygame.mixer.music.play(-1)
-    
-    
 
+
+def run_menu():
+    """
+    Runs the menu interface using tkinter.
+    Returns:
+        str: The path of the selected maze file if any, else an empty string.
+        bool: A flag indicating whether to start the game or exit.
+    """
+    maze_file = ""  # Nonlocal variable to control the maze file (global inside this function only)
+    should_run_game = False  # Nonlocal variable to control the menu loop (global inside this function only)
+
+    def on_play():
+        nonlocal should_run_game
+        if maze_file:
+            should_run_game = True  # Signal to start the game
+            root.destroy()  # Close the menu window
+        else:
+            msgbox("No maze loaded", "Please load a maze file before starting the game", 1)
+
+    def on_load_maze():
+        nonlocal maze_file
+        file_path = filedialog.askopenfilename(title="Select Maze File", filetypes=[("Text Files", "*.txt")])
+        if file_path:
+            maze_file = file_path
+            msgbox("Maze loaded", f"Selected maze file: {maze_file}", 0)
+        else:
+            msgbox("Invalid file path", "No valid maze file selected", 2)
+
+    def on_exit():
+        nonlocal should_run_game
+        should_run_game = False  # Signal to exit the game
+        root.destroy()
+
+    # Initialize tkinter window
+    root = tk.Tk()
+    root.title("Maze Game Menu")
+
+    # Create buttons
+    play_button = tk.Button(root, text="Play", command=on_play)
+    load_button = tk.Button(root, text="Load Maze", command=on_load_maze)
+    exit_button = tk.Button(root, text="Exit", command=on_exit)
+
+    # Layout buttons
+    play_button.pack(pady=10)
+    load_button.pack(pady=10)
+    exit_button.pack(pady=10)
+
+    root.mainloop()
+    return maze_file, should_run_game
+
+
+def msgbox(title, message, warning_level):
+    """
+    Display a message box with a title and a message.
+
+    Atributes:
+    - title: Title of the message box
+    - message: Message to be displayed
+    - warning_level: Level of the message box (0 = info, 1 = warning, 2 = error)
+    """
+    match warning_level:  # Match the warning level to the corresponding message box
+        case 0:
+            messagebox.showinfo(title, message)
+        case 1:
+            messagebox.showwarning(title, message)
+        case 2:
+            messagebox.showerror(title, message)
