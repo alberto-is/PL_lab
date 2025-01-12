@@ -322,11 +322,13 @@ def build_maze(file_path):
 TURNS_TO_ESCAPE = 0  # Number of turns used to escape the maze (global variable)
 def main():
     # ==== SETUP ====
+    pygame.init()
     while True:
-        maze_file, should_run_game = run_menu()  # Display the main menu
+        maze_file, should_run_game = show_menu()  # Display the main menu
 
         if not should_run_game:  # Exit the game
             print("Exiting...")
+            pygame.quit()
             break
 
         if not maze_file:  # No file selected
@@ -336,12 +338,13 @@ def main():
         maze = build_maze(maze_file)
         if maze is None:
             msgbox("Failed to build maze", "Failed to build maze, check parser output for more details.", 2)
+            continue
         else:
             print("Maze successfully loaded. Starting game...")
+            time.sleep(0.5)  # Small delay to get a less abrupt transition
 
             # ==== GAME LOOP ====
             # Create pygame window (adjust to window size)
-            pygame.init()
             icon_img = pygame.image.load("media/sprites/icon.png")
             pygame.display.set_icon(icon_img)  # Add this line
             screen = pygame.display.set_mode((1200, 700))
@@ -369,7 +372,7 @@ def main():
                     if event.type == pygame.QUIT:
                         running = False
 
-                # Update the display (can show the current state of the maze)
+                # 0. Update the display
                 update_display(maze, screen, TURNS_TO_ESCAPE)
 
                 # 1. Player Movement (waits for input)
@@ -398,16 +401,15 @@ def main():
                 summon_bombs(maze, maze_entities, screen)
                 maze_entities = update_entity_list(maze)
 
-                # Update the display again at the end of the turn
-                update_display(maze, screen, TURNS_TO_ESCAPE)
                 clock.tick(30)  # Limit to 30 FPS
 
             print("Player escaped!")
             print(f"Total turns to escape: {TURNS_TO_ESCAPE}")
-            msgbox("Congratulations!", f"You escaped the maze!\nTotal turns to escape: {TURNS_TO_ESCAPE}", 1)
-            pygame.quit()
+            time.sleep(0.3)
+            msgbox("Congratulations!", f"You escaped the maze!\nTotal turns to escape: {TURNS_TO_ESCAPE}", 0)
+            pygame.quit()  # Close the game window
+            pygame.init()  # Restart pygame for next game
         
 
 if __name__ == "__main__":
     main()
-    time.sleep(1)
