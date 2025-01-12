@@ -329,6 +329,7 @@ def build_maze(file_path):
 
 TURNS_TO_ESCAPE = 0  # Number of turns used to escape the maze (global variable)
 def main():
+    global TURNS_TO_ESCAPE
     # ==== SETUP ====
     pygame.init()
     while True:
@@ -375,6 +376,7 @@ def main():
 
             # Main game loop
             running = True
+            TURNS_TO_ESCAPE = 0  # Reset turn count
             while running:
                 # Event handling for quitting
                 for event in pygame.event.get():

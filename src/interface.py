@@ -39,6 +39,7 @@ HELP_ICON = "media/sprites/help_icon.png"  # Help button icon
 
 # Sfx
 pygame.mixer.init()
+pygame.mixer.set_num_channels(64)  # Increase the number of channels to avoid cutting off sounds (64 is overkill but just in case)
 BOMB_EXPLOSION = pygame.mixer.Sound("media/sfx/explosion.wav")  # Sound for the bomb explosion
 COIN_PICKUP = pygame.mixer.Sound("media/sfx/coin.wav")  # Sound for the coin pickup
 KEY_PICKUP = pygame.mixer.Sound("media/sfx/key.wav")  # Sound for the key pickup
