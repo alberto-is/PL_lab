@@ -89,13 +89,21 @@ def move_player(maze, maze_entities, screen):
             if event.type == pygame.KEYDOWN:
                 dx, dy = 0, 0
                 match event.key:
-                    case pygame.K_w:  # Move up
+                    case pygame.K_w:  # Move up w
                         dy = -1
-                    case pygame.K_s:  # Move down
+                    case pygame.K_s:  # Move down s
                         dy = 1
-                    case pygame.K_a:  # Move left
+                    case pygame.K_a:  # Move left a
                         dx = -1
-                    case pygame.K_d:  # Move right
+                    case pygame.K_d:  # Move right d
+                        dx = 1
+                    case pygame.K_UP:  # Move up arrow key
+                        dy = -1
+                    case pygame.K_DOWN:  # Move down arrow key
+                        dy = 1
+                    case pygame.K_LEFT:  # Move left arrow key
+                        dx = -1
+                    case pygame.K_RIGHT:  # Move right arrow key
                         dx = 1
                     case _:
                         print("Invalid key pressed")  # Should never happen
@@ -131,7 +139,7 @@ def move_player(maze, maze_entities, screen):
                         # Check if it failed due to hitting a coin
                         if target_cell.entity is not None and isinstance(target_cell.entity, Coin):
                             TURNS_TO_ESCAPE += 1 # Increment the turn count because move is valid
-                            TURNS_TO_ESCAPE -= 3  # Reduce turn count by 3 (value of coin)
+                            TURNS_TO_ESCAPE -= 7  # Reduce turn count by 7 (value of coin)
                             if TURNS_TO_ESCAPE < 0:
                                 TURNS_TO_ESCAPE = 0
                             target_cell.entity = None  # Remove the coin from the maze
@@ -328,6 +336,7 @@ def main():
 
         if not should_run_game:  # Exit the game
             print("Exiting...")
+            time.sleep(0.3)  # Small delay so the exit sound can play
             pygame.quit()
             break
 
@@ -405,7 +414,7 @@ def main():
 
             print("Player escaped!")
             print(f"Total turns to escape: {TURNS_TO_ESCAPE}")
-            time.sleep(0.3)
+            time.sleep(0.3)  # Small delay to get a less abrupt transition and so the exit sound can play
             msgbox("Congratulations!", f"You escaped the maze!\nTotal turns to escape: {TURNS_TO_ESCAPE}", 0)
             pygame.quit()  # Close the game window
             pygame.init()  # Restart pygame for next game

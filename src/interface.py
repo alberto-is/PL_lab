@@ -35,6 +35,7 @@ TURNS_IMG = pygame.image.load("media/sprites/turns.png")  # "Moves" icon
 PLAY_ICON = "media/sprites/play_icon.png"  # Play button icon
 LOAD_ICON = "media/sprites/load_icon.png"  # Load button icon
 EXIT_ICON = "media/sprites/exit_icon.png"  # Exit button icon
+HELP_ICON = "media/sprites/help_icon.png"  # Help button icon
 
 # Sfx
 pygame.mixer.init()
@@ -310,11 +311,23 @@ def show_menu():
         should_run_game = False  # Signal to exit the game
         root.destroy()
 
+    def on_help():  # Callback for the help button
+        play_sound("arrow_hit")
+        line_1 = "- Use WASD or the arrow keys to move the arround the maze."
+        line_2 = "- Doors can be opened with keys, and traps can be triggered by stepping on them to teleport."
+        line_3 = "- The objective is to reach the exit portal with the least amount of moves possible."
+        line_4 = "- Collecting coins will reduce the moves taken, while stepping near bombs will increase them."
+        line_5 = "- Archers shoot arrows that push entities"
+        line_6 = "- Mages spawn up to 5 bombs randomly arround the maze"
+        line_7 = "- Warriors move randomly arround the maze but taking them down costs more moves"
+        msgbox("Help", f"{line_1}\n\n{line_2}\n\n{line_3}\n\n{line_4}\n\n{line_5}\n\n{line_6}\n\n{line_7}", 0)
+
+
     # Initialize tkinter window
     root = tk.Tk()
     root.title("Dungeon Escape Menu")
     root.resizable(False, False)
-    root.geometry("575x425")
+    root.geometry("575x500")
     root.iconphoto(False, tk.PhotoImage(file=icon))
     root.config(bg=rgb_to_hex(MENU_BG))
     menu_font = (FONT_FAMILY, FONT_SIZE, "bold")  # Font for the menu buttons
@@ -323,6 +336,7 @@ def show_menu():
     play_icon = PhotoImage(file=PLAY_ICON)
     load_icon = PhotoImage(file=LOAD_ICON)
     exit_icon = PhotoImage(file=EXIT_ICON)
+    help_icon = PhotoImage(file=HELP_ICON)
     wall_texture = "media/sprites/wall.png"
 
     # Create a tiled background
@@ -340,6 +354,8 @@ def show_menu():
     load_button.config(bg=rgb_to_hex(BUTTON_COLOR), activebackground=rgb_to_hex(BUTTON_ACTIVE_COLOR), fg=rgb_to_hex(MENU_FONT_COLOR))
     exit_button = tk.Button(root, text="Exit", command=on_exit, font=menu_font, image=exit_icon, width=225, height=50, compound="left", padx=10)
     exit_button.config(bg=rgb_to_hex(BUTTON_COLOR), activebackground=rgb_to_hex(BUTTON_ACTIVE_COLOR), fg=rgb_to_hex(MENU_FONT_COLOR))
+    help_button = tk.Button(root, text="Help", command=on_help, font=menu_font, image=help_icon, width=225, height=50, compound="left", padx=10)
+    help_button.config(bg=rgb_to_hex(BUTTON_COLOR), activebackground=rgb_to_hex(BUTTON_ACTIVE_COLOR), fg=rgb_to_hex(MENU_FONT_COLOR))
 
     # Create textbox
     textbox = tk.Text(root, height=1, width=45)
@@ -355,6 +371,7 @@ def show_menu():
     play_button.pack(pady=10)
     load_button.pack(pady=10)
     textbox.pack(pady=10)
+    help_button.pack(pady=10)
     exit_button.pack(pady=10)
 
     # Play a sound when the window is opened
