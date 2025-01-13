@@ -63,7 +63,9 @@ class Maze:
             if 0 <= x + room_width - 1 < self.width and 0 <= y + room_height - 1 < self.height:  # Check that the room ends within bounds
                 for i in range(x, x + room_width): # x y is the top left corner of the room
                     for j in range(y, y + room_height):
-                        self.matrix[j][i].set_path()
+                        if not self.matrix[j][i].set_path(): # Set each cell as path
+                            print("Failed to add room: a cell is already path.")
+                            break
                 added = True
             else:
                 print("Failed to add room: room exceeds maze bounds.")
@@ -80,10 +82,14 @@ class Maze:
                 if x1 == x2 or y1 == y2: # Check the path is straight
                     if x1 == x2:  # Vertical path
                         for y in range(min(y1, y2), max(y1, y2) + 1):
-                            self.matrix[y][x1].set_path()
+                            if not self.matrix[y][x1].set_path():
+                                print(f"Failed to add path: cell ({x1}, {y}) is already path.")
+                                break
                     else:  # Horizontal path
                         for x in range(min(x1, x2), max(x1, x2) + 1):
-                            self.matrix[y1][x].set_path()
+                            if not self.matrix[y1][x].set_path():
+                                print(f"Failed to add path: cell ({x}, {y1}) is already path.")
+                                break
                     added = True
                 else:
                     print("Failed to add path: path is not straight.")
@@ -98,8 +104,10 @@ class Maze:
         """Set a single cell as path."""
         added = False
         if 0 <= x < self.width and 0 <= y < self.height:
-            self.matrix[y][x].set_path()
-            added = True
+            if not self.matrix[y][x].set_path():
+                print(f"Failed to add point: cell ({x}, {y}) already path.")
+            else:
+                added = True
         else:
             print("Failed to add point: coordinates are out of bounds.")
         return added
@@ -176,7 +184,7 @@ class Cell:
 
     def set_path(self):
         """Set the cell as path."""
-        set_as_path = False
+        set_as_path = False  # Whether the cell was successfully set as path
         if not self.is_path:
             self.is_path = True
             set_as_path = True
