@@ -1,0 +1,10 @@
+Paso 1: Instalar Python 3.10 o superior.
+
+Paso 2: Instalar los requisitos ejecutando el siguiente comando:
+    
+    -"sudo pip install -r requirements.txt"
+
+Paso 3: Ejecutar el archivo `main.py`.
+
+Nota importante: Asegúrate de ejecutar todos estos pasos desde la raíz del proyecto.
+
