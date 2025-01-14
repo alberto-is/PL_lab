@@ -1,0 +1,84 @@
+maze { dimensions 21 x 21 } ;
+
+/* 
+A very big maze to stress test the game.
+It will also require keys to be completed but not traps.
+*/ 
+
+// Define the entry and exit points
+entry (1, 19);
+exit (19, 1);
+
+// Rooms
+rooms {
+	// Spawn room
+	room from (0, 18) dimensions 3 x 3;
+	// Exit room
+	room from (18, 0) dimensions 3 x 3;
+	// Warrior rooms
+	room from (9, 1) dimensions 3 x 3;
+	room from (1, 9) dimensions 3 x 7;
+	// Mage rooms
+	room from (2, 3) dimensions 5 x 5;
+	room from (9, 8) dimensions 5 x 4;
+	// Archer rooms (big room with pillar)
+	room from (9, 13) dimensions 9 x 2;
+	room from (9, 17) dimensions 9 x 2;
+	room from (9, 15) dimensions 3 x 2;
+	room from (15, 15) dimensions 3 x 2;
+	// Other rooms
+	room from (14, 3) dimensions 3 x 3;
+	room from (17, 7) dimensions 3 x 3;
+}
+
+// Paths
+paths {
+	path from (12, 1) to (17, 1);
+	path from (10, 4) to (10, 7);
+	path from (7, 5) to (9, 5);
+	path from (15, 6) to (15, 7);
+	path from (17, 10) to (17, 12);
+	path from (4, 14) to (8, 14);
+	path from (3, 18) to (8, 18);
+	path from (2, 16) to (2, 17);
+	
+	path {
+		point (3, 8);
+		point (16, 7);
+		// point (16, 7);
+	}
+}
+
+// Obstacles and enemies
+obstacles {
+	// Doors
+	door (12, 1);
+	door (17, 12);
+	// Keys
+	key (15, 4);
+	key (11, 10);
+	// Bombs
+	bomb (2, 5);
+	bomb (6, 14);
+	bomb (16, 16);
+	// Coins
+	coin (3, 4);
+	coin (10, 10);
+	coin (2, 10);
+	coin (2, 14);
+	coin (6, 18);
+	coin (13, 17);
+	// Warriors
+	enemy (2, 12) type warrior;
+	enemy (10, 2) type warrior;
+	// Mages
+	enemy (4, 5) type mage;
+	enemy (11, 9) type mage;
+	// Archers
+	enemy (16, 14) type archer;
+	enemy (10, 17) type archer;
+	// Traps
+	trap (18, 8) to (14, 17);
+	trap (12, 10) to (13, 13);
+	trap (13, 14) to (5, 7);
+}
