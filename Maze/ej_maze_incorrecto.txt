@@ -12,12 +12,12 @@ compuesto */
 // ejemplo de comentario simple mal creado
 
 rooms {
-    room R1 from (1, 1) dimensions 3 x 3 {
+    room from (1, 1) dimensions 3 x 3 {
         bomb (2, 2);
         enemy (3, 3) type archer;
         door (1, 1);
     }
-    room R2 from (05, 5) dimensions 2 * 2 {
+    room from (05, 5) dimensions 2 * 2 {
         key (6, 6);
         trap (5, 5) to (5, 6);
     }

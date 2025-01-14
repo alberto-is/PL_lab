@@ -1,0 +1,117 @@
+maze { dimensions 75 x 75 };
+
+// Define the entry and exit points
+entry (74, 37);
+exit (0, 0);
+
+rooms {
+    // Starting Area
+    room from (70, 35) dimensions 5 x 5;
+    // Central Hub
+    room from (35, 35) dimensions 8 x 8;
+    // Treasure Chamber
+    room from (15, 15) dimensions 6 x 6;
+    // Archer's Lookout
+    room from (60, 60) dimensions 4 x 4;
+    // Mage's Study
+    room from (10, 50) dimensions 5 x 5;
+    // Warrior's Training Ground
+    room from (50, 10) dimensions 7 x 7;
+    // Secret Chamber
+    room from (25, 65) dimensions 4 x 4;
+    // Final Challenge Room
+    room from (5, 5) dimensions 6 x 6;
+}
+
+paths {
+    // Main paths
+    path from (74, 37) to (70, 35);
+    path from (70, 35) to (60, 60);
+    path from (60, 60) to (35, 35);
+    path from (35, 35) to (15, 15);
+    path from (35, 35) to (10, 50);
+    path from (35, 35) to (50, 10);
+    path from (15, 15) to (5, 5);
+    path from (5, 5) to (0, 0);
+    // Secret paths
+    path from (60, 60) to (25, 65);
+    path from (25, 65) to (10, 50);
+    // Alternative routes
+    path from (50, 10) to (15, 15);
+    path from (10, 50) to (5, 5);
+    // Dead ends and decoys
+    path {
+        point (45, 45);
+        point (46, 46);
+        point (47, 47);
+    }
+    path {
+        point (20, 70);
+        point (21, 71);
+    }
+}
+
+obstacles {
+    // Starting Area obstacles (were in room)
+    enemy (71, 36) type warrior;
+    enemy (72, 37) type archer;
+    enemy (73, 38) type mage;
+    key (71, 38);
+    
+    // Central Hub obstacles (were in room)
+    enemy (37, 37) type warrior;
+    enemy (38, 38) type warrior;
+    enemy (39, 39) type mage;
+    trap (36, 36) to (38, 38);
+    key (40, 40);
+    
+    // Treasure Chamber obstacles (were in room)
+    enemy (17, 17) type mage;
+    enemy (18, 18) type archer;
+    key (16, 16);
+    trap (15, 15) to (17, 17);
+    
+    // Archer's Lookout obstacles (were in room)
+    enemy (61, 61) type archer;
+    enemy (62, 62) type archer;
+    enemy (63, 63) type archer;
+    
+    // Mage's Study obstacles (were in room)
+    enemy (12, 52) type mage;
+    enemy (11, 51) type mage;
+    trap (10, 50) to (12, 52);
+    key (13, 53);
+    
+    // Warrior's Training Ground obstacles (were in room)
+    enemy (52, 12) type warrior;
+    enemy (53, 13) type warrior;
+    enemy (54, 14) type warrior;
+    trap (51, 11) to (53, 13);
+    
+    // Secret Chamber obstacles (were in room)
+    key (26, 66);
+    trap (25, 65) to (27, 67);
+    
+    // Final Challenge Room obstacles (were in room)
+    enemy (6, 6) type mage;
+    enemy (7, 7) type warrior;
+    enemy (8, 8) type archer;
+    trap (5, 5) to (8, 8);
+    
+    // Original corridor obstacles
+    door (69, 35);
+    door (35, 40);
+    door (15, 20);
+    door (5, 10);
+    trap (55, 55) to (58, 58);
+    trap (30, 30) to (33, 33);
+    trap (40, 20) to (43, 23);
+    bomb (65, 65);
+    bomb (45, 45);
+    bomb (25, 25);
+    bomb (15, 35);
+    bomb (35, 15);
+    trap (20, 60) to (23, 63);
+    door (40, 10);
+    door (10, 40);
+}
