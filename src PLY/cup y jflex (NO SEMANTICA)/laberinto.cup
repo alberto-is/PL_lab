@@ -1,0 +1,99 @@
+// Definición de la sintaxis para el lenguaje en CUP
+
+import java_cup.runtime.*;
+import java.io.*;
+
+parser code {:
+	public static void main(String args[]) throws Exception {
+
+ 		FileInputStream stream = new java.io.FileInputStream(args[0]);
+       		Reader reader = new java.io.InputStreamReader(stream);
+
+		try{
+			new parser(new Yylex(reader)).parse();
+		}
+		catch ( Exception e) {
+			System.out.println("Analisis INCORRECTO !!");
+			System.exit(1);
+		}
+		System.out.println("Analisis Correcto ");
+	
+		}
+:}
+
+
+terminal MAZE, DIMENSIONS, ENTRY, EXIT, ROOMS, ROOM, FROM, PATH,PATHS,TO;
+terminal OBSTACLES, BOMB, ENEMY, TYPE, DOOR, KEY, COIN, TRAP;
+terminal ARCHER, WARRIOR, MAGE;
+terminal NUMBER;
+terminal POINT;
+terminal PAREN_IZQ, PAREN_DER, LLAVE_IZQ, LLAVE_DER, PUNTO_COMA, COMA, X;
+
+non terminal S;
+non terminal Level, Maze, Entry, Exit, Rooms, Room, Paths, Path, Obstacles, Obstacle, Bomb, Enemy, Door, Key, Coin, Trap;
+non terminal Dimensions, Enemy_Type, Point, Number;
+non terminal RoomList, ObstacleList, PathList, PointList;
+
+precedence left PUNTO_COMA;
+
+S ::= Level;
+
+Level ::= Maze Entry Exit Rooms Paths Obstacles;
+
+Maze ::= MAZE LLAVE_IZQ Dimensions LLAVE_DER PUNTO_COMA;
+
+Dimensions ::= DIMENSIONS Number X Number;
+
+Entry ::= ENTRY PAREN_IZQ Number COMA Number PAREN_DER PUNTO_COMA;
+
+Exit ::= EXIT PAREN_IZQ Number COMA Number PAREN_DER PUNTO_COMA;
+
+Rooms ::= ROOMS LLAVE_IZQ RoomList LLAVE_DER;
+
+RoomList ::= Room RoomList
+           | /* epsilon */;
+
+Room ::= ROOM FROM PAREN_IZQ Number COMA Number PAREN_DER Dimensions LLAVE_IZQ ObstacleList LLAVE_DER;
+
+ObstacleList ::= Obstacle ObstacleList
+               | /* epsilon */;
+
+Obstacle ::= Bomb
+           | Enemy
+           | Door
+           | Key
+           | Coin
+           | Trap;
+
+Bomb ::= BOMB PAREN_IZQ Number COMA Number PAREN_DER PUNTO_COMA;
+
+Enemy ::= ENEMY PAREN_IZQ Number COMA Number PAREN_DER TYPE Enemy_Type PUNTO_COMA;
+
+Door ::= DOOR PAREN_IZQ Number COMA Number PAREN_DER PUNTO_COMA;
+
+Key ::= KEY PAREN_IZQ Number COMA Number PAREN_DER PUNTO_COMA;
+
+Coin ::= COIN PAREN_IZQ Number COMA Number PAREN_DER PUNTO_COMA;
+
+Trap ::= TRAP PAREN_IZQ Number COMA Number PAREN_DER TO PAREN_IZQ Number COMA Number PAREN_DER PUNTO_COMA;
+
+Enemy_Type ::= ARCHER
+             | WARRIOR
+             | MAGE;
+
+Paths ::= PATHS LLAVE_IZQ PathList LLAVE_DER;
+
+PathList ::= Path PathList
+           | /* epsilon */;
+
+Path ::= PATH FROM PAREN_IZQ Number COMA Number PAREN_DER TO PAREN_IZQ Number COMA Number PAREN_DER PUNTO_COMA
+       | PATH LLAVE_IZQ PointList LLAVE_DER;
+
+PointList ::= Point PointList
+            | /* epsilon */;
+
+Point ::= POINT PAREN_IZQ Number COMA Number PAREN_DER PUNTO_COMA;
+
+Obstacles ::= OBSTACLES LLAVE_IZQ ObstacleList LLAVE_DER;
+
+Number ::= NUMBER;

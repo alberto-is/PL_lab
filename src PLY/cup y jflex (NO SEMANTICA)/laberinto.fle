@@ -1,0 +1,116 @@
+
+import java.util.HashSet;
+import java.util.Set;
+import grammar.*;
+import java.io.*; 
+
+public class Keywords {
+    // Definir el conjunto de palabras clave
+    private static final Set<String> keywords = new HashSet<>();
+
+    static {
+        // Inicializar el conjunto de palabras clave
+        keywords.add("maze");
+        keywords.add("dimensions");
+        keywords.add("entry");
+        keywords.add("exit");
+        keywords.add("rooms");
+        keywords.add("room");
+        keywords.add("from");
+        keywords.add("to");
+        keywords.add("paths");
+        keywords.add("path");
+        keywords.add("point");
+        keywords.add("obstacles");
+        keywords.add("bomb");
+        keywords.add("enemy");
+        keywords.add("door");
+        keywords.add("key");
+        keywords.add("coin");
+        keywords.add("trap");
+        keywords.add("type");
+        keywords.add("archer");
+        keywords.add("warrior");
+        keywords.add("mage");
+        keywords.add("x");
+    }
+
+    // Método para verificar si una palabra es clave
+    public static boolean isKeyword(String word) {
+        return keywords.contains(word);
+    }
+} 
+
+public static void main(String[] args) {
+    if (args.length < 1) {
+        System.out.println("Por favor, proporciona un archivo de entrada.");
+        return;
+    }
+
+    String inputFilePath = args[0];
+    try (FileInputStream fileInputStream = new FileInputStream(inputFilePath);
+         Reader reader = new InputStreamReader(fileInputStream)) {
+
+        MazeLexer lexer = new MazeLexer(reader);
+        lexer.yylex(); // Procesar el archivo de entrada
+
+    } catch (FileNotFoundException e) {
+        System.err.println("Archivo no encontrado: " + e.getMessage());
+    } catch (IOException e) {
+        System.err.println("Error de entrada/salida: " + e.getMessage());
+    }
+}
+
+%%
+
+%class MazeLexer
+%8bit
+%line
+%column
+%state COMMENT 
+
+
+%eof{
+    System.out.println("-----FIN DEL PROGRAMA-----");
+%eof}
+
+%%
+/* Tokens */
+<YYINITIAL> [a-z][a-z]* {
+                    	String text = yytext();
+                    	if (Keywords.isKeyword(text)) {
+                       		System.out.println("[TOKEN] palabra reservada detectada " + text);
+                    	}else{
+                    		System.out.println("ERROR: palabra no reconocida " + text);
+			}
+		}
+
+/* Números */
+<YYINITIAL> [0-9]+                    { System.out.println("TOKEN: NUMBER => " + yytext()); }
+
+/* Comentarios */
+<YYINITIAL> "//".*                    { /* Ignorar comentarios */ }
+<YYINITIAL> "/*" { yybegin(COMMENT); }
+<COMMENT> "*/" {yybegin(YYINITIAL);}
+<COMMENT> . {/* Ignorar comentarios */}
+
+/* Caracteres especiales */
+<YYINITIAL> "{"                       { System.out.println("TOKEN: LLAVE_IZQ => " + yytext()); }
+<YYINITIAL> "}"                       { System.out.println("TOKEN: LLAVE_DER => " + yytext());}
+<YYINITIAL> "("                       { System.out.println("TOKEN: PAREN_IZQ => " + yytext());}
+<YYINITIAL> ")"                       { System.out.println("TOKEN: PAREN_DER => " + yytext());}
+<YYINITIAL> ","                       { System.out.println("TOKEN: COMA => " + yytext()); }
+<YYINITIAL> ";"                       { System.out.println("TOKEN: PUNTO_COMA => " + yytext());}
+
+
+/* Espacios en blanco */
+<YYINITIAL> [ \t\r\n]+ { /* Ignorar espacios en blanco */ }
+                
+<YYINITIAL> "-"[0-9]+ {
+        System.err.println("Error léxico: número negativo no válido \"" + yytext() + "\" en la línea " + (yyline + 1) + ", columna " + (yycolumn + 1));
+    }
+
+<YYINITIAL> . {
+        System.err.println("Error léxico: carácter no válido \"" + yytext() + "\" en la línea " + (yyline + 1) + ", columna " + (yycolumn + 1));
+    }
+
