@@ -26,24 +26,28 @@ class Maze:
         if 0 <= x < self.width and 0 <= y < self.height:  # Check spawn cell bounds
             cell = self.matrix[y][x]
             if cell.is_path and cell.entity is None:  # Ensure spawn cell is valid
-                if isinstance(entity, Trap):  # Special handling for traps
-                    # Validate target coordinates for traps
-                    target_x, target_y = entity.target_x, entity.target_y
-                    if (
-                        0 <= target_x < self.width
-                        and 0 <= target_y < self.height  # Check target cell bounds
-                        and self.matrix[target_y][target_x].is_path
-                        and self.matrix[target_y][target_x].entity is None  # Ensure target cell is valid
-                    ):
+                if not cell.is_trap_destination:  # Check if the cell is a trap destination
+                    if isinstance(entity, Trap):  # Special handling for traps
+                        # Validate target coordinates for traps
+                        target_x, target_y = entity.target_x, entity.target_y
+                        if (
+                            0 <= target_x < self.width
+                            and 0 <= target_y < self.height  # Check target cell bounds
+                            and self.matrix[target_y][target_x].is_path
+                            and self.matrix[target_y][target_x].entity is None  # Ensure target cell is valid
+                        ):
+                            cell.entity = entity
+                            self.matrix[target_y][target_x].is_trap_destination = True  # Mark target cell as trap destination
+                            entity.cell = cell
+                            added = True
+                        else:
+                            print(f"Failed to add Trap: target cell ({target_x}, {target_y}) is invalid.")
+                    else:
                         cell.entity = entity
                         entity.cell = cell
                         added = True
-                    else:
-                        print(f"Failed to add Trap: target cell ({target_x}, {target_y}) is invalid.")
                 else:
-                    cell.entity = entity
-                    entity.cell = cell
-                    added = True
+                    print(f"Failed to add entity {entity} at ({x}, {y}): spawn cell is a trap destination.")
             else:
                 print(f"Failed to add entity {entity} at ({x}, {y}): spawn cell is not path or occupied.")
         else:
@@ -51,6 +55,63 @@ class Maze:
 
         return added
 
+
+    def add_room(self, x, y, room_width, room_height):
+        """Set a rectangular section as path."""
+        added = False
+        if 0 <= x < self.width and 0 <= y < self.height:  # Check that the room starts within bounds
+            if 0 <= x + room_width - 1 < self.width and 0 <= y + room_height - 1 < self.height:  # Check that the room ends within bounds
+                for i in range(x, x + room_width): # x y is the top left corner of the room
+                    for j in range(y, y + room_height):
+                        if not self.matrix[j][i].set_path(): # Set each cell as path
+                            print("Failed to add room: a cell is already path.")
+                            break
+                added = True
+            else:
+                print("Failed to add room: room exceeds maze bounds.")
+        else:
+            print("Failed to add room: room starts outside maze bounds.")
+        return added
+
+
+    def add_path(self, x1, y1, x2, y2):
+        """Set a straight line of path between two points."""
+        added = False
+        if 0 <= x1 < self.width and 0 <= y1 < self.height:  # Check that the start point is within bounds
+            if 0 <= x2 < self.width and 0 <= y2 < self.height:  # Check that the end point is within bounds
+                if x1 == x2 or y1 == y2: # Check the path is straight
+                    if x1 == x2:  # Vertical path
+                        for y in range(min(y1, y2), max(y1, y2) + 1):
+                            if not self.matrix[y][x1].set_path():
+                                print(f"Failed to add path: cell ({x1}, {y}) is already path.")
+                                break
+                    else:  # Horizontal path
+                        for x in range(min(x1, x2), max(x1, x2) + 1):
+                            if not self.matrix[y1][x].set_path():
+                                print(f"Failed to add path: cell ({x}, {y1}) is already path.")
+                                break
+                    added = True
+                else:
+                    print("Failed to add path: path is not straight.")
+            else:
+                print("Failed to add path: end point is outside maze bounds.")
+        else:
+            print("Failed to add path: start point is outside maze bounds.")
+        return added
+
+    
+    def add_point(self, x, y):
+        """Set a single cell as path."""
+        added = False
+        if 0 <= x < self.width and 0 <= y < self.height:
+            if not self.matrix[y][x].set_path():
+                print(f"Failed to add point: cell ({x}, {y}) already path.")
+            else:
+                added = True
+        else:
+            print("Failed to add point: coordinates are out of bounds.")
+        return added
+        
 
     def move_entity(self, entity: "MazeObj", dx: int, dy: int):
         """Move an entity by dx, dy."""
@@ -62,10 +123,14 @@ class Maze:
         if 0 <= new_x < self.width and 0 <= new_y < self.height:  # Check bounds
             new_cell = self.matrix[new_y][new_x]
             if new_cell.is_path and new_cell.entity is None:  # Ensure valid move
-                old_cell.entity = None  # Remove from old cell
-                new_cell.entity = entity  # Add to new cell
-                entity.cell = new_cell  # Update entity's reference
-                moved = True  # Movement succeeded
+                # Ensure target cell is not a trap destination and the entity is not the player
+                if not new_cell.is_trap_destination or isinstance(entity, Player): # Player is exempt to move into trap destinations
+                    old_cell.entity = None  # Remove from old cell
+                    new_cell.entity = entity  # Add to new cell
+                    entity.cell = new_cell  # Update entity's reference
+                    moved = True  # Movement succeeded
+                else:
+                    print("Failed to move entity: target cell is a trap destination.")
             else:
                 print("Failed to move entity: target cell is invalid or occupied.")
         else:
@@ -82,10 +147,13 @@ class Maze:
         teleported = False  # Whether the teleport succeeded
 
         if new_cell.is_path and new_cell.entity is None:  # Ensure valid teleport
-            old_cell.entity = None  # Remove from old cell
-            new_cell.entity = entity  # Add to new cell
-            entity.cell = new_cell  # Update entity's reference
-            teleported = True  # Teleport succeeded
+            if not new_cell.is_trap_destination or isinstance(entity, Player):
+                old_cell.entity = None  # Remove from old cell
+                new_cell.entity = entity  # Add to new cell
+                entity.cell = new_cell  # Update entity's reference
+                teleported = True  # Teleport succeeded
+            else:
+                print("Failed to teleport entity: target cell is a trap destination.")
         else:
             print("Failed to teleport entity: target cell is invalid or occupied.")
         return teleported
@@ -106,20 +174,29 @@ class Cell:
     """
     Store the properties of a cell.
     """
-    def __init__(self, x, y, is_path=False):
+    def __init__(self, x, y, is_path=False, is_trap_destination=False):
         self.x = x  # Store the cell's x-coordinate in the maze
         self.y = y  # Store the cell's y-coordinate in the maze
         self.is_path = is_path
         self.entity = None  # Reference to the contained entity, if any
+        self.is_trap_destination = is_trap_destination  # Whether the cell is the target of a trap
 
 
     def set_path(self):
         """Set the cell as path."""
-        set_as_path = False
+        set_as_path = False  # Whether the cell was successfully set as path
         if not self.is_path:
             self.is_path = True
             set_as_path = True
         return set_as_path
+
+
+    def set_trap_destination(self):
+        """Set the cell as a trap destination."""
+        set_as_trap_destination = False
+        if self.is_path:  # Only path cells can be trap destinations
+            set_as_trap_destination = True  # Set the cell as a trap destination
+        return set_as_trap_destination
 
 
 # ===== OBJECTS =====
