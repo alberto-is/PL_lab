@@ -1,54 +1,67 @@
 """
-Module to handle the interface of the game. Both menus and the maze itself.
+Module to handle the interface of the game. Both the menu and the maze itself.
 """
 
 import pygame
 import random
 from maze import *
-
-# Global variables
-SPRITES_PATH = "../media/sprites"  
-SFX_PATH = "../media/sfx"
+import tkinter as tk
+from tkinter import filedialog, messagebox, PhotoImage
 
 # Characters
-PLAYER_IMG = pygame.image.load(f"{SPRITES_PATH}/player.png")
-ARCHER_IMG = pygame.image.load(f"{SPRITES_PATH}/archer.png")
-WARRIOR_IMG = pygame.image.load(f"{SPRITES_PATH}/warrior.png")
-MAGE_IMG = pygame.image.load(f"{SPRITES_PATH}/mage.png")
+PLAYER_IMG = pygame.image.load("media/sprites/player.png")  # Player sprite
+ARCHER_IMG = pygame.image.load("media/sprites/archer.png")  # Archer sprite
+WARRIOR_IMG = pygame.image.load("media/sprites/warrior.png")  # Warrior sprite
+MAGE_IMG = pygame.image.load("media/sprites/mage.png")  # Mage sprite
 
 # Static objects
-COIN_IMG = pygame.image.load(f"{SPRITES_PATH}/coin.png")
-BOMB_IMG = pygame.image.load(f"{SPRITES_PATH}/bomb.png")
-EXIT_IMG = pygame.image.load(f"{SPRITES_PATH}/exit.png")
-KEY_IMG = pygame.image.load(f"{SPRITES_PATH}/key.png")
-DOOR_IMG = pygame.image.load(f"{SPRITES_PATH}/door.png")
-TRAP_IMG = pygame.image.load(f"{SPRITES_PATH}/trap.png")
+COIN_IMG = pygame.image.load("media/sprites/coin.png")  # Coin sprite
+BOMB_IMG = pygame.image.load("media/sprites/bomb.png")  # Bomb sprite
+EXIT_IMG = pygame.image.load("media/sprites/exit.png")  # Exit sprite
+KEY_IMG = pygame.image.load("media/sprites/key.png")  # Key sprite
+DOOR_IMG = pygame.image.load("media/sprites/door.png")  # Door sprite
+TRAP_IMG = pygame.image.load("media/sprites/trap.png")  # Trap sprite
 
 # Tiles
-FLOOR_IMG = pygame.image.load(f"{SPRITES_PATH}/floor.png")
-WALL_IMG = pygame.image.load(f"{SPRITES_PATH}/wall.png")
-VOID_IMG = pygame.image.load(f"{SPRITES_PATH}/void.png")
+FLOOR_IMG = pygame.image.load("media/sprites/floor.png")  # Floor sprite
+WALL_IMG = pygame.image.load("media/sprites/wall.png")  # Wall sprite
+VOID_IMG = pygame.image.load("media/sprites/void.png")  # Void sprite (out of bounds)
 
 # Other items
-ARROW_IMG = pygame.image.load(f"{SPRITES_PATH}/arrow.png")
-TURNS_IMG = pygame.image.load(f"{SPRITES_PATH}/turns.png")
+ARROW_IMG = pygame.image.load("media/sprites/arrow.png")  # Arrow sprite
+TURNS_IMG = pygame.image.load("media/sprites/turns.png")  # "Moves" icon
+
+# MENU ICONS
+PLAY_ICON = "media/sprites/play_icon.png"  # Play button icon
+LOAD_ICON = "media/sprites/load_icon.png"  # Load button icon
+EXIT_ICON = "media/sprites/exit_icon.png"  # Exit button icon
+HELP_ICON = "media/sprites/help_icon.png"  # Help button icon
 
 # Sfx
 pygame.mixer.init()
-BOMB_EXPLOSION = pygame.mixer.Sound(f"{SFX_PATH}/explosion.wav")
-COIN_PICKUP = pygame.mixer.Sound(f"{SFX_PATH}/coin.wav")
-KEY_PICKUP = pygame.mixer.Sound(f"{SFX_PATH}/key.wav")
-DOOR_OPEN = pygame.mixer.Sound(f"{SFX_PATH}/door.wav")
-TRAP_TRIGGER = pygame.mixer.Sound(f"{SFX_PATH}/teleport.wav")
-ARROW_SHOT = pygame.mixer.Sound(f"{SFX_PATH}/shoot.wav")
-BOMB_SPAWN = pygame.mixer.Sound(f"{SFX_PATH}/spawn.wav")
-PLAYER_MOVE = pygame.mixer.Sound(f"{SFX_PATH}/move.wav")
-EXIT_TOUCH = pygame.mixer.Sound(f"{SFX_PATH}/exit.wav")
-ARROW_HIT = pygame.mixer.Sound(f"{SFX_PATH}/hit.wav")
-ENEMY_KILL = pygame.mixer.Sound(f"{SFX_PATH}/kill.wav")
+pygame.mixer.set_num_channels(64)  # Increase the number of channels to avoid cutting off sounds (64 is overkill but just in case)
+BOMB_EXPLOSION = pygame.mixer.Sound("media/sfx/explosion.wav")  # Sound for the bomb explosion
+COIN_PICKUP = pygame.mixer.Sound("media/sfx/coin.wav")  # Sound for the coin pickup
+KEY_PICKUP = pygame.mixer.Sound("media/sfx/key.wav")  # Sound for the key pickup
+DOOR_OPEN = pygame.mixer.Sound("media/sfx/door.wav")  # Sound for the door opening
+TRAP_TRIGGER = pygame.mixer.Sound("media/sfx/teleport.wav")  # Sound for the trap trigger
+ARROW_SHOT = pygame.mixer.Sound("media/sfx/shoot.wav")  # Sound for the arrow shot
+BOMB_SPAWN = pygame.mixer.Sound("media/sfx/spawn.wav")  # Sound for the bomb spawn
+PLAYER_MOVE = pygame.mixer.Sound("media/sfx/move.wav")  # Sound for the player moving
+EXIT_TOUCH = pygame.mixer.Sound("media/sfx/exit.wav")  # Sound for the player touching the exit
+ARROW_HIT = pygame.mixer.Sound("media/sfx/hit.wav")  # Sound for the arrow hitting an enemy
+ENEMY_KILL = pygame.mixer.Sound("media/sfx/kill.wav")  # Sound for an enemy being killed
 
 # Music
-GAME_MUSIC = f"{SFX_PATH}/loop.wav"
+GAME_MUSIC = "media/sfx/loop.wav"
+
+# Menu colors
+MENU_BG = (50, 50, 50)  # Background color for the menu
+MENU_FG_COLOR = (255, 255, 255)  # Foreground color for the menu
+BUTTON_COLOR = (120, 120, 120)  # Color for the buttons
+BUTTON_ACTIVE_COLOR = (155, 155, 155)  # Color for the buttons when pressed
+TEXTBOX_BG = (170, 170, 170)  # Background color for the text box
+MENU_FONT_COLOR = (5, 5, 5)  # Font color for the menu
 
 # Other constants
 VIEW_RANGE = 10  # How many tiles arround the player can be sees (ONLY RENDER THIS VISION SQUARE, FILL REST WITH VOID)
@@ -138,44 +151,46 @@ def update_display(maze, screen, turns):
 
             scaled_arrow = pygame.transform.scale(ARROW_IMG, (TILE_SIZE, TILE_SIZE))
 
-            if 0 <= maze_x < maze.width and 0 <= maze_y < maze.height:
-                # Inside maze bounds
+            if 0 <= maze_x < maze.width and 0 <= maze_y < maze.height:  # Inside maze bounds
                 cell = maze.matrix[maze_y][maze_x]
                 if cell.entity:
                     entity = cell.entity
-                    if isinstance(entity, Coin):
-                        screen.blit(scaled_coin, (screen_x, screen_y))
-                    elif isinstance(entity, Bomb):
-                        screen.blit(scaled_bomb, (screen_x, screen_y))
-                    elif isinstance(entity, Exit):
-                        screen.blit(scaled_exit, (screen_x, screen_y))
-                    elif isinstance(entity, Key):
-                        screen.blit(scaled_key, (screen_x, screen_y))
-                    elif isinstance(entity, Door):
-                        screen.blit(scaled_door, (screen_x, screen_y))
-                    elif isinstance(entity, Trap):
-                        screen.blit(scaled_trap, (screen_x, screen_y))
-                    elif isinstance(entity, Player):
-                        screen.blit(scaled_player, (screen_x, screen_y))
-                    elif isinstance(entity, Archer):
-                        screen.blit(scaled_archer, (screen_x, screen_y))
-                    elif isinstance(entity, Warrior):
-                        screen.blit(scaled_warrior, (screen_x, screen_y))
-                    elif isinstance(entity, Mage):
-                        screen.blit(scaled_mage, (screen_x, screen_y))
-                    elif isinstance(entity, Arrow):
-                        # Rotate image acording to the direction
-                        match entity.direction:  # Arrow is drawn to the right by default 
-                            case "right":
-                                scaled_arrow = pygame.transform.rotate(scaled_arrow, 0)
-                            case "left":
-                                scaled_arrow = pygame.transform.rotate(scaled_arrow, 180)
-                            case "up":
-                                scaled_arrow = pygame.transform.rotate(scaled_arrow, 90)
-                            case "down":
-                                scaled_arrow = pygame.transform.rotate(scaled_arrow, 270)
-                            # WARNING: match case requires python 3.10 or newer
-                        screen.blit(scaled_arrow, (screen_x, screen_y))
+                    match entity:  # Match the entity to the corresponding sprite
+                        case Coin():
+                            screen.blit(scaled_coin, (screen_x, screen_y))
+                        case Bomb():
+                            screen.blit(scaled_bomb, (screen_x, screen_y))
+                        case Exit():
+                            screen.blit(scaled_exit, (screen_x, screen_y))
+                        case Key():
+                            screen.blit(scaled_key, (screen_x, screen_y))
+                        case Door():
+                            screen.blit(scaled_door, (screen_x, screen_y))
+                        case Trap():
+                            screen.blit(scaled_trap, (screen_x, screen_y))
+                        case Player():
+                            screen.blit(scaled_player, (screen_x, screen_y))
+                        case Archer():
+                            screen.blit(scaled_archer, (screen_x, screen_y))
+                        case Warrior():
+                            screen.blit(scaled_warrior, (screen_x, screen_y))
+                        case Mage():
+                            screen.blit(scaled_mage, (screen_x, screen_y))
+                        case Arrow():
+                            # Rotate image acording to the direction
+                            match entity.direction:  # Arrow is drawn to the right by default
+                                case "right":
+                                    scaled_arrow = pygame.transform.rotate(scaled_arrow, 0)
+                                case "left":
+                                    scaled_arrow = pygame.transform.rotate(scaled_arrow, 180)
+                                case "up":
+                                    scaled_arrow = pygame.transform.rotate(scaled_arrow, 90)
+                                case "down":
+                                    scaled_arrow = pygame.transform.rotate(scaled_arrow, 270)
+                            screen.blit(scaled_arrow, (screen_x, screen_y))
+                        case _:
+                            raise ValueError(f"Unknown entity: {entity}")
+                    
 
     # Create the font and prepare the images
     font = pygame.font.SysFont(FONT_FAMILY, FONT_SIZE)
@@ -253,7 +268,119 @@ def play_music():
     """
     print("Music provided courtesy of Abundant Music (https://pernyblom.github.io/abundant-music/index.html)")
     pygame.mixer.music.load(GAME_MUSIC)
+    pygame.mixer.music.set_volume(0.2)  # Lower volume (20%) because it can get quite loud with headphones
     pygame.mixer.music.play(-1)
+
+
+def show_menu():
+    """
+    Runs the menu interface using tkinter.
+    Returns:
+        str: The path of the selected maze file if any, else an empty string.
+        bool: A flag indicating whether to start the game or exit.
+    """
+    should_run_game = False  # Nonlocal variable to control the menu loop (global inside this function only)
+    icon = "media/sprites/icon.png"  # Icon for the window
+
+    def on_play():  # Callback for the play button
+        nonlocal should_run_game
+        play_sound("arrow_hit")
+        should_run_game = True  # Signal to start the game
+        root.destroy()  # Close the menu window
+       
+            
+    def on_exit():  # Callback for the exit button
+        nonlocal should_run_game
+        play_sound("arrow_hit")
+        should_run_game = False  # Signal to exit the game
+        root.destroy()
+
+    def on_help():  # Callback for the help button
+        play_sound("arrow_hit")
+        line_1 = "- Use WASD or the arrow keys to move the arround the maze."
+        line_2 = "- Doors can be opened with keys, and traps can be triggered by stepping on them to teleport."
+        line_3 = "- The objective is to reach the exit portal with the least amount of moves possible."
+        line_4 = "- Collecting coins will reduce the moves taken, while stepping near bombs will increase them."
+        line_5 = "- Archers shoot arrows that push entities"
+        line_6 = "- Mages spawn up to 5 bombs randomly arround the maze"
+        line_7 = "- Warriors move randomly arround the maze but taking them down costs more moves"
+        msgbox("Help", f"{line_1}\n\n{line_2}\n\n{line_3}\n\n{line_4}\n\n{line_5}\n\n{line_6}\n\n{line_7}", 0)
+
+
+    # Initialize tkinter window
+    root = tk.Tk()
+    root.title("Dungeon Escape Menu")
+    root.resizable(False, False)
+    root.geometry("575x375")
+    root.iconphoto(False, tk.PhotoImage(file=icon))
+    root.config(bg=rgb_to_hex(MENU_BG))
+    menu_font = (FONT_FAMILY, FONT_SIZE, "bold")  # Font for the menu buttons
+    textbox_font = (FONT_FAMILY, int(FONT_SIZE / 2))  # Smaller font for the textbox (half the size)
+    title_font = (FONT_FAMILY, int(FONT_SIZE * 2), "bold")  # Bigger font for the title (twice the size)
+    play_icon = PhotoImage(file=PLAY_ICON)
+    load_icon = PhotoImage(file=LOAD_ICON)
+    exit_icon = PhotoImage(file=EXIT_ICON)
+    help_icon = PhotoImage(file=HELP_ICON)
+    wall_texture = "media/sprites/wall.png"
+
+    # Create a tiled background
+    canvas = tk.Canvas(root, width=1000, height=1000)  # Bigger than the window so it doesn't align on any edge
+    canvas.place(relwidth=1, relheight=1)
+    texture = PhotoImage(file=wall_texture)
+    for x in range(0, 1000, texture.width()):  # Bigger than the window so it doesn't align on any edge
+        for y in range(0, 1000, texture.height()):  
+            canvas.create_image(x, y, image=texture, anchor="center")
+
+    # Create buttons
+    play_button = tk.Button(root, text="Play", command=on_play, font=menu_font, image=play_icon, width=225, height=50, compound="left", padx=10)
+    play_button.config(bg=rgb_to_hex(BUTTON_COLOR), activebackground=rgb_to_hex(BUTTON_ACTIVE_COLOR), fg=rgb_to_hex(MENU_FONT_COLOR))
+    exit_button = tk.Button(root, text="Exit", command=on_exit, font=menu_font, image=exit_icon, width=225, height=50, compound="left", padx=10)
+    exit_button.config(bg=rgb_to_hex(BUTTON_COLOR), activebackground=rgb_to_hex(BUTTON_ACTIVE_COLOR), fg=rgb_to_hex(MENU_FONT_COLOR))
+    help_button = tk.Button(root, text="Help", command=on_help, font=menu_font, image=help_icon, width=225, height=50, compound="left", padx=10)
+    help_button.config(bg=rgb_to_hex(BUTTON_COLOR), activebackground=rgb_to_hex(BUTTON_ACTIVE_COLOR), fg=rgb_to_hex(MENU_FONT_COLOR))
+
     
+    # Create label
+    title_label = tk.Label(root, text="Dungeon Escape", font=title_font, fg=rgb_to_hex(MENU_FONT_COLOR), bg=rgb_to_hex(TEXTBOX_BG), padx=20, borderwidth=3, relief="sunken")
+
+    # Layout elements
+    title_label.pack(pady=20)
+    play_button.pack(pady=10)
+    help_button.pack(pady=10)
+    exit_button.pack(pady=10)
+
+    # Play a sound when the window is opened
+    play_sound("exit_touch")
+
+    root.mainloop()
+    return should_run_game
+
+
+def msgbox(title, message, warning_level):
+    """
+    Display a message box with a title and a message.
+
+    Atributes:
+    - title: Title of the message box
+    - message: Message to be displayed
+    - warning_level: Level of the message box (0 = info, 1 = warning, 2 = error)
+    """
+    match warning_level:  # Match the warning level to the corresponding message box
+        case 0:
+            messagebox.showinfo(title, message)
+        case 1:
+            messagebox.showwarning(title, message)
+        case 2:
+            messagebox.showerror(title, message)
+
+
+def rgb_to_hex(rgb):
+    """
+    Convert an RGB tuple to a hex color string.ç
+
+    Atributes:
+    - rgb: Tuple with the RGB values (int, int, int)
+    """
+    return f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}"
     
 

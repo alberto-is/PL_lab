@@ -162,7 +162,7 @@ public class Listener extends mazeBaseListener {
 
             if (!isInsidePath) {
                 obstacles_witout_path.add(obs); //Añadimos el obstaculo a la lista de obstaculos sin camino
-                warnings.add("Advertencia: El obstaculo " + obs + " no está en ningún camino.");
+                errors.add("ERROR: El obstaculo " + obs + " no está en ningún camino.");
             }
         }
 
@@ -179,10 +179,7 @@ public class Listener extends mazeBaseListener {
         }
 
         if (doors > keys) {
-            if (keys == 0) {
-                errors.add("Error: No hay llaves en el laberinto para abrir las puertas.");
-            } else 
-                warnings.add("Advertencia: Hay más puertas que llaves en el laberinto. Usa las llaves con precaución.");   
+            errors.add("ERROR: Hay más puertas que llaves en el laberinto.");   
         }
 
 
@@ -211,7 +208,7 @@ public class Listener extends mazeBaseListener {
        
         // Mostrar advertencias
         if (!warnings.isEmpty()) {
-            System.out.println("\nAdvertencias encontradas durante el analisis:");
+            System.out.println("\nWarnings encontradas durante el analisis:");
             for (String warning : warnings) {
                 System.out.println("- " + warning);
             }
@@ -321,7 +318,7 @@ public class Listener extends mazeBaseListener {
                     paths.add(new Path());
                     paths.get(paths.size() - 1).addPoint(p);
                 }else{
-                    warnings.add("Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+                    warnings.add("WARNING: El punto " + p + " ya se ha definido anteriormente.");
                 }
 
               }
@@ -487,7 +484,7 @@ public class Listener extends mazeBaseListener {
                   if (!isPointInPath(p, paths)){
                       points.add(p);
                   }else{
-                      warnings.add("Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+                      warnings.add("WARNING: El punto " + p + " ya se ha definido anteriormente.");
                   }
                   currentY += (currentY < endY) ? 1 : -1;
               }
@@ -499,7 +496,7 @@ public class Listener extends mazeBaseListener {
                     if (!isPointInPath(p, paths)){
                         points.add(p);
                     }else{
-                        warnings.add("Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+                        warnings.add("WARNING: El punto " + p + " ya se ha definido anteriormente.");
                     }
                     currentX += (currentX < endX) ? 1 : -1;
                 }
@@ -510,7 +507,7 @@ public class Listener extends mazeBaseListener {
         if (!isPointInPath(p, paths)){
             points.add(p);
         }else{
-            warnings.add("Advertencia: El punto " + p + " ya se ha definido anteriormente.");
+            warnings.add("WARNING: El punto " + p + " ya se ha definido anteriormente.");
         }
 
       }
@@ -600,7 +597,7 @@ public class Listener extends mazeBaseListener {
   
       // Comprobamos que el punto no esté repetido
         if (isPointInPath(point, paths)) {
-            warnings.add("Advertencia: El punto " + point + " ya se ha definido anteriormente.");
+            warnings.add("WARNING: El punto " + point + " ya se ha definido anteriormente.");
             return; // Salir sin añadir el punto
         }
       // Añadir el punto al último camino
@@ -632,7 +629,8 @@ public class Listener extends mazeBaseListener {
             myWriter.write("\t\tself.list_obstacles = list_obstacles\n\n");
 
             // Crear el objeto MazeStructure
-            myWriter.write(String.format("maze = MazeStructure(\n"));
+            myWriter.write(String.format("# Crear el objeto MazeStructure\n"));
+            myWriter.write(String.format("maze_structure = MazeStructure(\n"));
             myWriter.write(String.format("\t(%d, %d),\n", mazeDimensions.getX(), mazeDimensions.getY()));
             myWriter.write(String.format("\t(%d, %d),\n", entry.getX(), entry.getY()));
             myWriter.write(String.format("\t(%d, %d),\n", exit.getX(), exit.getY()));

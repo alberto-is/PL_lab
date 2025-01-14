@@ -1,13 +1,13 @@
 En Windows:
-Hay que situarse en el directorio src ANTLR
+Hay que situarse en el directorio PL_Lab
 - Tenemos un .bat con la automatiación de la generación de los archivos necesarios para crear la estructura
 necesaria para pasarle al programa.
 
-.\run_antlr.bat
+& ".\src ANTLR\run_antlr.bat"
 
 - Una vez ejecutado, lo siguiente sería llamar a la función main del laberinto
 
-python .\main.py
+python '.\src ANTLR\main.py' 
 
 ===============================================================================================================
 
@@ -15,13 +15,16 @@ En caso contrario de no estar en Windows:
 NOTA: Ten en cuenta que "C:/antlr4/lib/antlr-4.7.2-complete.jar" tendrá que ser modificado
 con la ruta correspondiente al archivo .jar del antlr
 
+Esta vez lo ejecutaremos dentro del directorio src ANTLR
 Comandos a realizar para la generacion de código
 - java -jar "C:/antlr4/lib/antlr-4.7.2-complete.jar" -listener -visitor -Dlanguage=Java maze.g4
 - javac -cp ".;C:/antlr4/lib/antlr-4.7.2-complete.jar" *.java -d .antlr
-- java -cp ".;C:/antlr4/lib/antlr-4.7.2-complete.jar;.antlr" Main big_maze.txt
+- java -cp ".;C:/antlr4/lib/antlr-4.7.2-complete.jar;.antlr" Main ejemplos/ej_maze_correcto_basico.txt
 
+Ahora vuelve al directorio PL_Lab
+cd ..
 Una vez realizado estos comandos ejecutar el main del laberinto
-- python .\main.py
+- python '.\src ANTLR\main.py'
 
 NOTA: Si se ha instalado el requirements.txt del directorio \src PLY, no deberia haber problemas
 en cuento a las librerias necesarias para el main.py (se necesita el pygame).
