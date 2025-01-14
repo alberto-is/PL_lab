@@ -26,7 +26,7 @@ if %errorlevel% neq 0 (
 
 REM Paso 3: Ejecutar el programa principal
 echo Ejecutando el programa Main...
-java -cp ".;%ANTLR_JAR%;.antlr" Main ej_maze_correcto.txt
+java -cp ".;%ANTLR_JAR%;.antlr" Main ej_maze_correcto4.txt
 if %errorlevel% neq 0 (
     echo Error al ejecutar el programa.
     exit /b 1
