@@ -8,7 +8,7 @@ rooms {
     // Room 1: from (1, 1) with dimensions 3x3
     room from (1, 1) dimensions 3 x 3;
     // Room 2: from (5, 5) with dimensions 2x2
-    room from (5, 5) dimensions 2 x 2;
+    room from (5, 5) dimensions 2 x 2; 
 }
 
 paths {

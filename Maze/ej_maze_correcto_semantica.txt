@@ -1,0 +1,44 @@
+maze { dimensions 9 x 9 } ;
+
+// Define the entry and exit points
+entry (8, 4);
+exit (4, 0);
+
+/*
+Define rooms and obstacles
+*/
+
+rooms {
+    // Room 1: from (0, 0) with dimensions 2x2
+    room from (0, 0) dimensions 2 x 2;
+    // Room 2: from (0, 7) with dimensions 2x2
+    room from (0, 7) dimensions 2 x 2;
+    // Room 3: from (3, 3) with dimensions 3x3
+    room from (3, 3) dimensions 3 x 3;
+    // Room 4: from (3, 0) with dimensions 3x1
+    room from (3, 0) dimensions 3 x 1;
+    // Room 5: from (8, 3) with dimensions 1x3
+    room from (8, 3) dimensions 1 x 3;
+}
+
+// Define paths
+paths {
+    path from (4, 1) to (4, 2);     // Path from (4, 1) to (4, 2)
+    path from (6, 4) to (7, 4);     // Path from (6, 4) to (7, 4)
+    path from (1, 2) to (1, 6);     // Path from (1, 2) to (1, 6)
+    path {
+        point (2, 4);              // Single point path at (2, 4)
+    }
+}
+
+// Define obstacles
+obstacles {
+    door (2, 4);  // Door at (2, 4)
+    bomb (1, 2);  // Bomb at (1, 2)
+    enemy (0, 0) type archer;
+    enemy (0, 8) type mage;
+    trap (1, 8) to (4, 1);
+    enemy (4, 4) type warrior;
+    key (5, 3);
+    coin (1, 4);
+}
