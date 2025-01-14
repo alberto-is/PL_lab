@@ -26,7 +26,7 @@ class Maze:
         if 0 <= x < self.width and 0 <= y < self.height:  # Check spawn cell bounds
             cell = self.matrix[y][x]
             if cell.is_path and cell.entity is None:  # Ensure spawn cell is valid
-                if not cell.is_trap_destination:  # Check if the cell is a trap destination
+                if not cell.is_trap_destination or isinstance(entity, Player):  # Check if the cell is a trap destination
                     if isinstance(entity, Trap):  # Special handling for traps
                         # Validate target coordinates for traps
                         target_x, target_y = entity.target_x, entity.target_y

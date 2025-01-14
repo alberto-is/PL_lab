@@ -60,7 +60,7 @@ def p_room(p):
     x, y = p[4], p[6]
     width, height = p[8]
     if not current_maze.add_room(x, y, width, height):
-        print(f"ERROR: Cannot create room at ({x}, {y}) of {width} x {height}. Out of bounds or already exists.")
+        print(f"ERROR: Cannot create room at ({x}, {y}) of {width} x {height}. Out of bounds.")
         create_maze = False
 
 def p_paths(p):
@@ -78,7 +78,7 @@ def p_path(p):
     global current_maze
     if len(p) == 15:
         if not current_maze.add_path(p[4], p[6], p[10], p[12]):
-            print(f"ERROR: Cannot create path from ({p[4]}, {p[6]}) to ({p[10]}, {p[12]}). Out of bounds or already exists.")
+            print(f"ERROR: Cannot create path from ({p[4]}, {p[6]}) to ({p[10]}, {p[12]}). Out of bounds or not straight.")
             create_maze = False
 
 def p_pointList(p):
@@ -89,7 +89,7 @@ def p_pointList(p):
 def p_point(p):
     'point : POINT PAREN_IZQ NUMBER COMA NUMBER PAREN_DER PUNTO_COMA'
     if not current_maze.add_point(p[3], p[5]):
-        print(f"ERROR: Cannot create point ({p[3]}, {p[5]}). Out of bounds or already exists.")
+        print(f"ERROR: Cannot create point ({p[3]}, {p[5]}). Out of bounds.")
         create_maze = False
 
 def p_obstacles(p):
