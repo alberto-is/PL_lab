@@ -1,0 +1,53 @@
+maze { dimensions 25 x 25 };
+
+// Define the entry and exit points
+entry (24, 12);
+exit (0, 0);
+
+rooms {
+    room from (0, 0) dimensions 5 x 5;
+    room from (6, 6) dimensions 4 x 4;
+    room from (10, 10) dimensions 5 x 5;
+    room from (20, 20) dimensions 3 x 3;
+    room from (15, 5) dimensions 4 x 4;
+}
+
+paths {
+    // División del camino (0,4) a (24,12) en segmentos rectos
+    path from (0, 4) to (24, 4);     // Primero horizontal
+    path from (24, 4) to (24, 12);   // Luego vertical
+
+    // División del camino (2,3) a (6,7) en segmentos rectos
+    path from (2, 3) to (6, 3);      // Primero horizontal
+    path from (6, 3) to (6, 7);      // Luego vertical
+
+    // División del camino (8,9) a (10,11) en segmentos rectos
+    path from (8, 9) to (10, 9);     // Primero horizontal
+    path from (10, 9) to (10, 11);   // Luego vertical
+
+    // División del camino (14,14) a (20,20) en segmentos rectos
+    path from (14, 14) to (20, 14);  // Primero horizontal
+    path from (20, 14) to (20, 20);  // Luego vertical
+
+    // División del camino (6,11) a (15,6) en segmentos rectos
+    path from (6, 11) to (6, 6);     // Primero vertical
+    path from (6, 6) to (15, 6);     // Luego horizontal
+
+    path {
+        point (12, 6);               // Punto único
+    }
+}
+
+obstacles {
+    enemy (0, 1) type archer;
+    enemy (2, 2) type mage;
+    enemy (7, 7) type warrior;
+    key (8, 8);
+    enemy (12, 12) type mage;
+    trap (11, 11) to (13, 13);
+    key (21, 21);
+    enemy (16, 6) type archer;
+    door (6, 10);
+    bomb (14, 6);
+    trap (10, 14) to (24, 12);
+}
